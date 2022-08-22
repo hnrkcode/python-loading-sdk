@@ -170,3 +170,86 @@ class TestLoadingApiWrapper(unittest.TestCase):
         self.assertIsNone(api.cookies)
         self.assertEqual(response.get("code"), 401)
         self.assertEqual(response.get("message"), "No auth token")
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_search_success(self, mock_requests):
+        expected_response = {
+            "posts": [
+                {
+                    "parentId": "5c6d3faae34cd5001ddf33f4",
+                    "body": "Är det bara jag som fått känslan av att Leia inte känner eller har träffat Obi-Wan i A New Hope? Hon verkar inte bry sig nämnvärt när han dör och mycket mindre än Luke, som känt honom i en halv kvart. I hennes meddelande i R2-D2 säger hon dessutom att det är hennes far som ber Obi-Wan att hjälpa henne, med repliker som låter som att hon inte har någon relation till honom. ",
+                    "userId": "5bb76576066d1b001d5289f8",
+                    "postType": "regular",
+                    "replies": 0,
+                    "createdAt": "2022-05-30T11:43:24.192Z",
+                    "updatedAt": "2022-05-30T11:51:37.473Z",
+                    "edits": 1,
+                    "lastEdit": "2022-05-30T11:51:37.472Z",
+                    "id": "6294addc119f1f6427cef2bb",
+                }
+            ],
+            "users": [
+                {
+                    "id": "5bb76576066d1b001d5289f8",
+                    "name": "Anders Eklöf",
+                    "picture": "6efb2624-cf7b-402a-8834-f934f2c1c29b.jpg",
+                    "role": "editor",
+                    "createdAt": "2018-10-05T13:21:58.857Z",
+                    "status": "active",
+                }
+            ],
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = expected_response
+        mock_requests.post.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.search("zGwszApFEcY")
+
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("search_results"), expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_search_success_no_results(self, mock_requests):
+        expected_response = {"posts": [], "users": []}
+
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = expected_response
+        mock_requests.post.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.search("zGwszApFEcYesf")
+
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("search_results"), expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_search_failure_empty_query(self, mock_requests):
+        status_code = 400
+        expected_response = {
+            "code": status_code,
+            "message": "Validation error",
+            "errors": [
+                {
+                    "field": "query",
+                    "location": "body",
+                    "messages": ['"query" is not allowed to be empty'],
+                    "types": ["any.empty"],
+                }
+            ],
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.post.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.search("")
+
+        self.assertEqual(response.get("code"), 400)
+        self.assertEqual(response.get("message"), "Validation error")
+        self.assertEqual(response, expected_response)

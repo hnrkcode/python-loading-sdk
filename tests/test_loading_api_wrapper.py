@@ -127,8 +127,9 @@ class TestLoadingApiWrapper(unittest.TestCase):
         self.assertEqual(response.get("code"), 400)
         self.assertEqual(response.get("message"), "Validation error")
 
+    @patch("loading_api_wrapper.api.LoadingApiWrapper._authenticate")
     @patch("loading_api_wrapper.api.requests")
-    def test_get_profile_success(self, mock_requests):
+    def test_get_profile_success(self, mock_requests, mock_authenticate):
         status_code = 200
         expected_response = {
             "id": "000000000000000000000000",
@@ -142,18 +143,15 @@ class TestLoadingApiWrapper(unittest.TestCase):
         mock_response.status_code = status_code
         mock_response.json.return_value = expected_response
         mock_requests.get.return_value = mock_response
+        mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
-        with patch(
-            "loading_api_wrapper.api.LoadingApiWrapper._authenticate"
-        ) as mock_auth:
-            mock_auth.return_value = {"code": 200, "cookies": self.cookie_jar}
-            api = LoadingApiWrapper("test@email.com", "password")
-            response = api.get_profile()
+        api = LoadingApiWrapper("test@email.com", "password")
+        response = api.get_profile()
 
-            self.assertIsNotNone(api.cookies)
-            self.assertEqual(api.cookies, self.cookie_jar)
-            self.assertEqual(response.get("code"), 200)
-            self.assertDictEqual(response.get("profile"), expected_response)
+        self.assertIsNotNone(api.cookies)
+        self.assertEqual(api.cookies, self.cookie_jar)
+        self.assertEqual(response.get("code"), 200)
+        self.assertDictEqual(response.get("profile"), expected_response)
 
     @patch("loading_api_wrapper.api.requests")
     def test_get_profile_failure(self, mock_requests):

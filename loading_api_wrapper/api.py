@@ -31,3 +31,18 @@ class LoadingApiWrapper:
             return {"code": 200, "cookies": response.cookies}
 
         return response.json()
+
+    def get_profile(self):
+        url = f"{API_URL}/{API_VERSION}/users/profile"
+        headers = {
+            "User-Agent": USER_AGENT,
+        }
+        response = requests.get(url, headers=headers, cookies=self.cookies)
+
+        if response.status_code == 200:
+            return {
+                "code": response.status_code,
+                "profile": response.json(),
+            }
+
+        return response.json()

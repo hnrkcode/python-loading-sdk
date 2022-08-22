@@ -46,3 +46,19 @@ class LoadingApiWrapper:
             }
 
         return response.json()
+
+    def search(self, query):
+        url = f"{API_URL}/{API_VERSION}/search/"
+        headers = {
+            "User-Agent": USER_AGENT,
+            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        }
+        response = requests.post(url, headers=headers, data={"query": query})
+
+        if response.status_code == 200:
+            return {
+                "code": response.status_code,
+                "search_results": response.json(),
+            }
+
+        return response.json()

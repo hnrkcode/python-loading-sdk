@@ -126,3 +126,49 @@ class TestLoadingApiWrapper(unittest.TestCase):
         self.assertDictEqual(response, expected_response)
         self.assertEqual(response.get("code"), 400)
         self.assertEqual(response.get("message"), "Validation error")
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_profile_success(self, mock_requests):
+        status_code = 200
+        expected_response = {
+            "id": "000000000000000000000000",
+            "name": "test_username",
+            "email": "test@email.com",
+            "role": "user",
+            "createdAt": "2022-01-01T00:00:00.000Z",
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        with patch(
+            "loading_api_wrapper.api.LoadingApiWrapper._authenticate"
+        ) as mock_auth:
+            mock_auth.return_value = {"code": 200, "cookies": self.cookie_jar}
+            api = LoadingApiWrapper("test@email.com", "password")
+            response = api.get_profile()
+
+            self.assertIsNotNone(api.cookies)
+            self.assertEqual(api.cookies, self.cookie_jar)
+            self.assertEqual(response.get("code"), 200)
+            self.assertDictEqual(response.get("profile"), expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_profile_failure(self, mock_requests):
+        status_code = 401
+        expected_response = {"code": status_code, "message": "No auth token"}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_profile()
+
+        self.assertIsNone(api.cookies)
+        self.assertEqual(response.get("code"), 401)
+        self.assertEqual(response.get("message"), "No auth token")

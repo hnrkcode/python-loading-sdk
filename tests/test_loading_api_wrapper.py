@@ -23,7 +23,7 @@ class TestLoadingApiWrapper(unittest.TestCase):
 
         api = LoadingApiWrapper("test@email.com", "password")
 
-        self.assertEqual(api.cookies, self.cookie_jar)
+        self.assertEqual(api._cookies, self.cookie_jar)
 
         api = LoadingApiWrapper()
         response = api._authenticate("test@email.com", "password")
@@ -46,7 +46,7 @@ class TestLoadingApiWrapper(unittest.TestCase):
 
         api = LoadingApiWrapper("incorrect@email.com", "incorrect_password")
 
-        self.assertIsNone(api.cookies)
+        self.assertIsNone(api._cookies)
 
         api = LoadingApiWrapper()
         response = api._authenticate("incorrect@email.com", "incorrect_password")
@@ -78,7 +78,7 @@ class TestLoadingApiWrapper(unittest.TestCase):
 
         api = LoadingApiWrapper("invalid_email_address", "password")
 
-        self.assertIsNone(api.cookies)
+        self.assertIsNone(api._cookies)
 
         api = LoadingApiWrapper()
         response = api._authenticate("invalid_email_address", "password")
@@ -119,7 +119,7 @@ class TestLoadingApiWrapper(unittest.TestCase):
 
         api = LoadingApiWrapper("", "")
 
-        self.assertIsNone(api.cookies)
+        self.assertIsNone(api._cookies)
 
         api = LoadingApiWrapper()
         response = api._authenticate("", "")
@@ -149,8 +149,8 @@ class TestLoadingApiWrapper(unittest.TestCase):
         api = LoadingApiWrapper("test@email.com", "password")
         response = api.get_profile()
 
-        self.assertIsNotNone(api.cookies)
-        self.assertEqual(api.cookies, self.cookie_jar)
+        self.assertIsNotNone(api._cookies)
+        self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response.get("code"), 200)
         self.assertDictEqual(response.get("profile"), expected_response)
 
@@ -168,7 +168,7 @@ class TestLoadingApiWrapper(unittest.TestCase):
         api = LoadingApiWrapper()
         response = api.get_profile()
 
-        self.assertIsNone(api.cookies)
+        self.assertIsNone(api._cookies)
         self.assertEqual(response.get("code"), 401)
         self.assertEqual(response.get("message"), "No auth token")
 

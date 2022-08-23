@@ -19,13 +19,13 @@ EDITORIAL_SORT = ["title"]
 
 class LoadingApiWrapper:
     def __init__(self, email=None, password=None):
-        self.cookies = None
+        self._cookies = None
 
         if email and password:
             response = self._authenticate(email, password)
 
             if response.get("code") == 200:
-                self.cookies = response.get("cookies")
+                self._cookies = response.get("cookies")
 
     def _authenticate(self, email, password):
         url = f"{API_URL}/{API_VERSION}/auth/login"
@@ -70,7 +70,7 @@ class LoadingApiWrapper:
         headers = {
             "User-Agent": USER_AGENT,
         }
-        response = requests.get(url, headers=headers, cookies=self.cookies)
+        response = requests.get(url, headers=headers, cookies=self._cookies)
 
         if response.status_code == 200:
             return {

@@ -5,6 +5,16 @@ import requests
 API_URL = "https://api.loading.se"
 API_VERSION = "v1"
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0"
+EDITORIAL_POST_TYPES = [
+    "neRegular",
+    "review",
+    "opinion",
+    "update",
+    "podcast",
+    "conversation",
+]
+
+EDITORIAL_SORT = ["title"]
 
 
 class LoadingApiWrapper:
@@ -162,3 +172,34 @@ class LoadingApiWrapper:
         thread_data = self._get_threads_in_forum_category(category_name, page)
 
         return thread_data
+
+    def get_editorials(self, page=None, post_type=None, sort=None):
+        url = f"{API_URL}/{API_VERSION}/posts/"
+        headers = {
+            "User-Agent": USER_AGENT,
+            "texts": "texts",
+            "post-type": "neRegular",
+        }
+
+        if post_type and post_type in EDITORIAL_POST_TYPES:
+            headers["post-type"] = post_type
+
+        if sort and sort in EDITORIAL_SORT:
+            headers["sort"] = sort
+
+        # Chooses a specific page instead of the first page which is the default page.
+        if page and page > 1:
+            headers["page"] = str(page)
+
+        # Doing this checks to make sure it only return data from a page that exists.
+        if page and page < 1:
+            return {"code": 404, "post": {"posts": [], "users": []}}
+
+        response = requests.get(url, headers=headers)
+        data = response.json()
+
+        # Page out of range.
+        if not len(data["posts"]):
+            return {"code": 404, "post": data}
+
+        return {"code": 200, "post": data}

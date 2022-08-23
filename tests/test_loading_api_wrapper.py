@@ -1207,3 +1207,346 @@ class TestLoadingApiWrapper(unittest.TestCase):
         response = api.get_other(page=999)
 
         self.assertDictEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_editorials_success(self, mock_requests):
+        status_code = 200
+        expected_response = {
+            "posts": [
+                {
+                    "id": "5bb797b8066d1b001d528a43",
+                    "title": "Bli en del av vår Patreon",
+                    "body": "![Patreon](https://i.imgur.com/lNDGvZd.jpg)\n\n### UPPDATERING 20181208:\n\nHej alla ni tappra underbara Loadare som bidrar till driften, utvecklingen och det redaktionella bakom forumet. Vi vet att vi har varit dåliga på att uppdatera vår Patreon, men det kommer!\nStort tack för alla bidrag och STORT TACK för att ni är ni är så fina som ni är! <3\n\n### ORIGINALPOST:\n\n### Kära Loadare.\n\nFör vissa av oss har Loading alltid varit som ett andra hem. En plats som är något större än enbart ett forum på internet.\n\nKanske är du en av oss?\n\nIdag drivs Loading ideellt av en fristående grupp eldsjälar som behöver din hjälp för att täcka kostnader för underhåll och drift. Med lite från många kan vi lyckas att hålla liv i forumet samt utveckla och bygga ut det allt eftersom.\nVi tror och hoppas att du som användare uppskattar forumet och det som redaktionen skapar för dig.\n\nVi har uppskattat att det kommer kosta oss ungefär 1000 kr varje månad för underhåll och drift av sidan, vilket vi anser är den absolut viktigaste bakgrunden till varför vi upprättar en Patreon. Skulle vi få in mer pengar än det absolut nödvändigaste ser vi detta som en investering i de resurser som krävs för vidareutveckling av funktioner på Loading. Utöver det har vi även satt ett mål för att kunna erbjuda redaktionellt material av större kvalité.\n\nVarma hälsningar och tack på förhand för din tid.\n\nhttps://www.patreon.com/loadingse/overview\n\n/Loading-redaktionen\n",
+                    "category": "other",
+                    "coverImage": "https://i.imgur.com/lNDGvZd.jpg",
+                    "postType": "update",
+                    "createdAt": "2018-10-05T16:56:24.766Z",
+                    "updatedAt": "2018-12-09T09:07:22.386Z",
+                    "userId": "5bb75ec2066d1b001d5289e9",
+                    "replies": 36,
+                    "edits": 1,
+                    "lastEdit": "2018-12-08T16:26:36.325Z",
+                    "latestReply": "2018-12-09T09:07:22.382Z",
+                    "latestReplyUserId": "5bb7e4ab8fef22001d902cb9",
+                },
+                {
+                    "id": "6020fd086544a9001ed1688c",
+                    "title": "Ekonomisk rapport för 2020 ",
+                    "body": "![](https://i.imgur.com/Dr8kWZy.png)\n\n2020 var ett omtumlande år för världen, och ett spännande år för Loading. Under året som gått har vi inte bara sett mängder av recensioner och spännande trådar och diskussioner passera förbi, utan forumet har också fått sig ett ordentligt lyft. Utöver en visuell makeover har vårt skickliga utvecklingsteam levererat efterlängtade funktioner som citering, mörkt läge, ordentliga moderatorverktyg och inbäddning av YouTube-klipp, samt en och annan buggfix och andra trevliga grejer under huven. Loading kommer så klart fortsätta utvecklas under 2021 också.\n\nEftersom vi inte skulle kunna göra det vi gör [utan ert ekonomiska stöd](https://www.patreon.com/loadingse) vill vi tala om exakt vad era pengar går till.\n\nUnder 2020 hade Loading intäkter på **20 978,08 kr**, fördelade så här:\n\n* **Patreon-inkomster:** 18 571,47 kr\n* **Återbetalning av oavsiktligt hamburgarköp:** 82 kr (mer om detta nedan)\n* **Kvarglömda Patreon-pengar från innan vi skaffade eget bankkonto:** 2 324,61 kr\n\nVåra utgifter uppgick till **13 704,20 kr:**\n* **Driftskostnader (serverhyra och dylikt):** 10 281, 20 kr\n* **Bankavgifter:** 1 100 kr\n* **Oavsiktligt hamburgarköp: (en hungrig redaktionsmedlem blippade fel kort i kassan):** 82 kr\n* **Inköp av kuvert och frimärken att posta papper som ska skrivas på med:** 190 kr\n* **Spelinköp till recensioner:** 2 051 kr\n\nSpelinköpen var följande:\n* **Nioh 2:** 699 kr\n* **What the Golf:** 156 kr\n* **The Last of Us Part II:** 699 kr\n* **Cyberpunk 2077:** 497 kr\n\nDetta resulterade i att vi gick **7 273,88 kr plus.** Eftersom Loading drivs ideellt har vi inga planer på att de här pengarna ska stoppas i redaktionens fickor eller liknande, utan de ska investeras i att fortsätta driva Loading på olika sätt, till exempel genom inköp av spel vi inte får recensionsexemplar av, eller inköp av tjänster som underlättar utveckling eller drift av sidan. (Med detta menas då mjukvarutjänster, då vi tyvärr inte har råd att hyra in professionella utvecklare och betala skälig ersättning till dem.) En del av pengarna kommer också användas för att bygga upp en buffert i händelse av oförutsedda utgifter.\n\nNu blickar vi framåt mot resten av 2021, som förhoppningsvis kommer bli ännu ett fantastiskt år för Loading. Ett forum är ingenting utan sina användare, så vi tackar så hjärtligt för att ni finns här och stöttar oss.\n\nDet är ni som sporrar oss att kämpa ända in i kaklet för att göra Loading till den bästa community det kan vara.\n\nNi är anledningen att det överhuvudtaget finns ett Loading.\n\nÄn en gång, tack.\n\nVänliga hälsningar,\nLoadingredaktionen\n\n![](https://i.imgur.com/6zl9mey.png)\n",
+                    "category": "games",
+                    "coverImage": "https://i.imgur.com/Dr8kWZy.png",
+                    "postType": "update",
+                    "createdAt": "2021-02-08T08:57:44.724Z",
+                    "updatedAt": "2021-02-09T08:58:38.826Z",
+                    "userId": "5bbd0e7403dc9d001d9a5565",
+                    "replies": 26,
+                    "edits": 2,
+                    "lastEdit": "2021-02-08T13:03:40.525Z",
+                    "latestReply": "2021-02-09T08:58:38.826Z",
+                    "latestReplyUserId": "5bb751cb066d1b001d5289e0",
+                },
+                {
+                    "id": "61af0e4c38bbee001f35d5da",
+                    "title": "Loadingbössan 2021 – Loading stödjer Musikhjälpen",
+                    "body": "![](https://i.imgur.com/l7xD1oT.png)\n\n# LOADINGBÖSSAN 2021\n\nGivmildhetens högtid är kommen - Julen. Sedan 2008 är [Musikhjälpen](https://sverigesradio.se/artikel/om-musikhjalpen) mer eller mindre befäst som en riktig jultradition. Genom åren har totalt ungefär 425 miljoner kronor skänkts till diverse välgörande ändamål.\n\nDet är Norrköping som står värd för Musikhjälpen 2021 och årets tema är: **För en värld utan barnarbete.** För första gången på 20 år har man sett att förekomsten av barnarbete har ökat. Mer information om temat kan du läsa på [Sveriges Radios webbplats](https://sverigesradio.se/artikel/for-en-varld-utan-barnarbete).\n\nSom tidigare år har vi självklart fixat en [**Loadingbössa**](https://bossan.musikhjalpen.se/loadingboessan-2021) för dig som vill bidra i Loadings namn. Förra året blev Loadingbössan fylld med 550kr. Det bör vi väl kunna bräcka?\n\n![](https://i.imgur.com/6zl9mey.png)\n",
+                    "category": "games",
+                    "coverImage": "50f88615-b5b5-473c-8b86-bba25cf1604f.png",
+                    "postType": "update",
+                    "createdAt": "2021-12-07T07:33:32.758Z",
+                    "updatedAt": "2021-12-30T11:56:58.590Z",
+                    "userId": "5bbd0e7403dc9d001d9a5565",
+                    "replies": 23,
+                    "latestReply": "2021-12-30T11:56:58.589Z",
+                    "latestReplyUserId": "5bb7618d066d1b001d5289ef",
+                },
+                {
+                    "id": "5c2b3939f425c2001d0d47b2",
+                    "title": "Loadings Patreon",
+                    "body": "![](https://i.imgur.com/312v4k9.png)\n# Tack för en bra (ny)start!\n\nHej Loading!\n\nHär kommer en uppdatering kring [vår Patreon](https://www.patreon.com/loadingse) och en visning på hur ert ekonomiska stöd just nu förvaltas:\n\nInkomster hittills via vår Patreon (*betalas ut i mitten av efterkommande månad*) uppgår till totalt **5 288,95 kr**.\n* 13 november: **2 879,70 kr**\n* 14 december: **2 409,25 kr**\n\nUtgifter hittills uppgår till totalt **3 369 kr**:\n* Övertagande av domänen från Reset Media: **950 kr**\n   (*detta är en kostnad som webbhotellet tog ut*)\n* Kostnad för databas i oktober: **641,56 kr**\n* Kostnad för domän i oktober: **55,61 kr**\n* Kostnad för databas i november: **717,24 kr**\n* Kostnad för domän i november: **19,74 kr**\n* Darksiders 3 för recension: **549 kr**\n   (*ingen recensionskod från utgivaren*)\n* Katamary Damacy Reroll för recension: **179 kr**\n   (*slut på recensionskoder hos utgivaren*)\n\nSom ni ser har vi ett överskott i vår kassa. Överskottet kommer att förvaltas av redaktionen för behov vid redaktionellt material samt fortsatt buffert för driften av Loading. \n\nIdag drivs Loading av eldsjälar från både redaktionen och forumet. Inga pengar kommer att gå till någon form av lön. Vad vi däremot kommer att titta på är scenarion där vi kan beställa ett jobb från en extern part som hjälper till med vidareutvecklingen av sidan.\n\nTills vidare fortsätter Stanislav att arbeta på sidan tillsammans med Terzom, som ni säkert också känner igen från forumet. \n\nHär är en kort redovisning över vad som gjorts sedan vi lanserade i oktober:\n* Tagit fram textredigerare med möjlighet att redigera sitt inlägg med Markdown.\n* Möjlighet att redigera ett redan skapat inlägg.\n* Uppdaterad styling på inlägg.\n* Möjlighet att ha sin egen profilbild.\n* Pågående arbete med olika kontoflöden (*registrering, avregistrering, lösenordsändring med mera*) \n* Justeringar för mobil ökad läsbarhet på mobil plattform.\n* Allmänna buggfixar och förfiningar.\n\nEn del av vår vision är att ni på Loading ska ha möjligheten att påverka sidans innehåll. Därför undrar vi om ni vill vara med och ge förslag på vilka spel vi ska köpa och recensera?\n\nVi vill också passa på att säga att vi uppskattar all er feedback som ni har gett oss i [förslagstråden] (https://loading.se/post/5bb790e5066d1b001d528a3a), och vi vill också att ni medlemmar fortsätter att komma med förslag på vad som kan förbättras och vad för innehåll ni vill se mer av. \n\nOch du, tack för ditt stöd, Loading är inget utan dig!\n\nFölj med oss till 2019!\n\nMed varma hälsningar,\nRedaktionen\n\n![](https://i.imgur.com/RE2YtkV.png)\n\n",
+                    "category": "other",
+                    "coverImage": "https://i.imgur.com/312v4k9.png",
+                    "postType": "update",
+                    "createdAt": "2019-01-01T09:56:09.736Z",
+                    "updatedAt": "2019-02-05T15:47:45.016Z",
+                    "userId": "5bb75ec2066d1b001d5289e9",
+                    "replies": 15,
+                    "edits": 4,
+                    "lastEdit": "2019-01-01T10:30:11.112Z",
+                    "latestReply": "2019-02-05T15:47:45.009Z",
+                    "latestReplyUserId": "5bb7b1ac8fef22001d902820",
+                },
+                {
+                    "id": "6038bf69e7b0bb001e6246e1",
+                    "title": "Loadings Patreon",
+                    "body": "![](https://i.imgur.com/QQWY9dI.png)\n\nKära Loadare.\nFör vissa av oss har Loading alltid varit som ett andra hem. En plats som är något större än enbart ett forum på internet.\n\nIdag drivs Loading ideellt av en fristående grupp eldsjälar som behöver din hjälp för att täcka kostnader för underhåll och drift. Med lite från många kan vi lyckas att hålla liv i forumet samt utveckla och bygga ut det allt eftersom.\nVi tror och hoppas att du som användare uppskattar forumet och det som redaktionen skapar för dig.\n\nVi har uppskattat att det kommer kosta oss ungefär 1000 kr varje månad för underhåll och drift av sidan, vilket vi anser är den absolut viktigaste bakgrunden till varför vi upprättat en Patreon. Skulle vi få in mer pengar än det absolut nödvändigaste ser vi detta som en investering i Loadings framtid, till exempel genom inköp av tjänster och material som låter oss förbättra sidan och det redaktionella innehållet.\n\nVarma hälsningar och tack på förhand för din tid och ditt stöd.\n\nhttps://www.patreon.com/loadingse/overview\n\n/Loading-redaktionen\n\n![](https://i.imgur.com/6zl9mey.png)\n",
+                    "category": "other",
+                    "coverImage": "https://i.imgur.com/QQWY9dI.png",
+                    "postType": "update",
+                    "createdAt": "2021-02-26T09:29:13.405Z",
+                    "updatedAt": "2021-02-26T10:07:50.843Z",
+                    "userId": "5bbd0e7403dc9d001d9a5565",
+                    "replies": 2,
+                    "edits": 1,
+                    "lastEdit": "2021-02-26T10:05:09.562Z",
+                    "latestReply": "2021-02-26T10:07:50.842Z",
+                    "latestReplyUserId": "5bb762ed066d1b001d5289f2",
+                },
+                {
+                    "id": "5d985998cdb666001ef52837",
+                    "title": "Nya Loading fyller 1 år!",
+                    "body": '![](https://i.imgur.com/vQladDr.png)\n\n### **TACK FÖR DET HÄR ÅRET!**\nAtt Loading som från ingenstans stängde ned i maj 2018 kom för oss alla som en chock. Hur 13 år av forumhistoria kunde försvinna så plötsligt var ledsamt, tragiskt och till och med upprörande. Spelforumet var inte bara ännu en mötesplats i spelsverige, under dessa gångna år hade det blivit en del av mångas vardag. Det fanns däremot de som inte ville acceptera hemsidans öde, handlingskraftiga individer som var redo att gå vidare efter detta missöde.\n\nFör exakt ett år sedan påbörjade vi en resa tillsammans med er forumiter. Vi gick hand i hand från gammalt till nytt och lyckades med gemensamt engagemang återuppliva vår gemenskap. Det har självklart inte alltid varit en lätt resa, och ingen av oss var nog helt säkra på vart vi var på väg, men nog har det varit roligt också. Därför vill vi självklart tacka er alla för att ni fortsätter att vara med på Loading.se i vått och torrt. Er som följde med oss från det gamla forumet dit vi är idag, er som under det gångna året fyllt forumet med intressanta diskussioner och heta debatter.\n\nLoading har alltid handlat om användarna - ni som varje dag besöker forumet, och deltar i hjärtliga diskussioner om tv-spel och andra ämnen. Det är ni som under alla dessa år hållit Loadings flamma levande, och aldrig har det påståendet varit mer sant än nu. Idag drivs hemsidan av en fristående grupp eldsjälar och upprätthålls tack vare generösa donationer från våra användare. Ett extra stort tack går därför ut till alla er som stöttar forumet på Patreon. Utan era bidrag hade inget av detta varit möjligt!\n\nLåt oss nu, med ett helt år av forumeskapader i backspegeln, blicka framåt till ytterligare ett framgångsrikt och spännande år i Loadings tecken! Skål!\n\n### **FORUMETS FÖRSTA ÅR I SIFFROR**\n33433 inlägg har postats\n446 unika trådar har skapats\n219 redaktionella recensioner har publicerats\n1 falsk DO-anmälning mot forumet har skapats \n\n### **ÅRETS BÄSTA TRÅDAR**\n\n**[Trådlek - En series bästa spel (The Legend of Zelda)](https://loading.se/post/5d6e5fbb3cc708001eaaf00c) av Jocke Andersson**\nEn av vårt första års bästa trådar som lyckades låta oss rannsaka våra åsikter på ett nyskapande sätt. Att jämföra alla titlar i en hel spelserie gjorde detta till en underhållande övning i att döda sina älsklingar.\n\n**[The Bullshit Lounge](https://loading.se/post/5bb7aa488fef22001d902643) av Avgrundsvrål**\nLoadings hjärta förstås. Med 530 sidor och över 15300 inlägg finns det ingenting som kan stoppa denna outtömliga källa av skräppost. \n\n**[Fikabröd](https://loading.se/post/5cebf2a48b0a87001db38d7d) av Kiki**\nDen officiella tråden om allt gott vi käkar till fikan. \n\n**[Loading blir serie!](https://loading.se/post/5bc0c65911b2c9001d2b3b03) av Avgrundsvrål**\nTråden där vi under året kunnat illustrera vad som hänt på forumet i form av serier. En underhållande liten tråd som behöver mer uppmärksamhet!\n\n**[Presentera det mest fantastiska underskattade spelet](https://loading.se/post/5beb217d033bb1001db3fff2?fbclid=IwAR3i6WREsjvQJqhAOgX5Zrfu6mHfslZ6vQ45N3ODR1yLwFrGRcYz_D1NphU) av Aleksandar Buntic**\nDenna tråd om underskattade spel blev snabbt fylld med en hel del märkliga och spännande titlar som många kanske missat. Värd att ta en titt på om ni vill ha intressanta tips om vad som bör spelas.\n\n**[Opopulära spelåsikter - vilka är dina?](https://loading.se/post/5beb217d033bb1001db3fff2?fbclid=IwAR3i6WREsjvQJqhAOgX5Zrfu6mHfslZ6vQ45N3ODR1yLwFrGRcYz_D1NphU) av Alexander Rehnman**\nEn tråd full med individer som har fel.\n\n**[LLLLINK BBBREAKER!! (Nintendo)](https://loading.se/post/5cd8854de30c54001d547fea) av Shiine**\nBildlekar engagerar alltid på ett eller annat sätt, speciellt om de låter en flexa med sin spelsamling på kuppen.\n\n**[Charles Martinet hävdar att Mario inte alls säger "So long, gay Bowser!”](https://loading.se/post/5cc7043316aff9001dee48bc) av Alexander Rehnman**\nVi blev också chockerade när vi hörde det. Fullkomligt orimligt.\n\n**[Varför är folk så rädda för lägre svårighetsgrader/tillgänglighetsalternativ?](https://loading.se/post/5caca66c1c55ff001d4e97df) av Alexander Rehnman**\nKonstnärliga intentioner och tillgänglighet ställs som totala motpunkter i denna diskussion om svårighetsgrader inom spel. Pajkastning och debatt på hård nivå.\n\n**[Kulturmarxistisk Gillette-reklam propagerar för att mörda alla män!](https://loading.se/post/5c41e1348282b8001d941433) av Avgrundsvrål**\nPolitik, rakning och PR-trick allt i en och samma tråd. En helt vanlig strid på idéernas slagfält.\n\n**[Duscha på morgonen vs duscha på kvällen](https://loading.se/post/5c9baf2a327359001d38683f) av Erik**\nVår tids kanske viktigaste fråga besvarad av forumiterna!\n\n**[Kärlekstråden!](https://loading.se/post/5c3cb495473055001dadbb3c) av Notorious Gamer**\nTråden där vi delade med oss av våra kärlekseskapader under året som gått. Brustna hjärtan, nyfunnen förälskelse och andra intriger väntar i denna dramafyllda forumtråd.\n\n![](https://i.imgur.com/6zl9mey.png)\n',
+                    "category": "other",
+                    "coverImage": "https://i.imgur.com/vQladDr.png",
+                    "postType": "update",
+                    "createdAt": "2019-10-05T08:51:36.754Z",
+                    "updatedAt": "2020-10-06T08:08:12.197Z",
+                    "userId": "5bb7aa868fef22001d902665",
+                    "replies": 47,
+                    "edits": 2,
+                    "lastEdit": "2019-10-05T08:58:22.115Z",
+                    "latestReply": "2020-10-06T08:08:12.195Z",
+                    "latestReplyUserId": "5bb7a8b2066d1b001d528a5f",
+                },
+                {
+                    "id": "62463d47b37f8b2ab9ac906e",
+                    "title": "Styr Loading med din röst",
+                    "body": "Vi har länge snickrat på lösningar som tar Loading in i finrummet och blir en naturlig del av din vardag. Därför har vi utvecklat en Google Assistant app där du kan prata med Loading.se.\n\nMan kommer åt den via sin Android-telefon, Google Nest/Home eller Google Assistant appen på iPhone. Se till att ha lagt till Svenska bland språken du vill prata på.\n\nMan börjar diskussionen med **Prata med Loading.se**, efter det finns det en rad kommandon man kan leka med.\n\n- Man kan fråga efter de **senaste artiklarna**, då listar de tre senaste\n- Sedan kan du be den att läsa den **första, andra eller tredje** av dessa\n- Ber man den att **söka efter** något läser den upp en bit av det inlägg som matchade bäst, att söka efter *gandalf* är alltid en hit\n- Sist men inte minst lanserar vi äntligen funktionen att få höra hur många trådar och inlägg som finns på Loading, be bara att få höra om den **totala statistiken**\n\nAppen vill gärna hålla dig kvar i konversationen så man kan avsluta genom att inte prata med den på ett tag eller helt enkelt säga **hejdå** eller **adjö**.\n\nMan kan också komma direkt till en funktion genom att säga **Prata med Loading.se om de senaste nyheterna**.\n\nHoppas ni kommer ha mycket kul genom att prata med Loading.se\n\n[Kolla in appen på sidan för Google Assistant](https://assistant.google.com/services/a/uid/0000003c159950f9?hl=sv_se)",
+                    "category": "other",
+                    "coverImage": "5f46bc88-4d03-448a-84c9-fec7e021eda2.jpg",
+                    "postType": "update",
+                    "createdAt": "2022-03-31T23:46:15.499Z",
+                    "updatedAt": "2022-04-07T06:44:51.084Z",
+                    "userId": "5bb7ae3d8fef22001d90276e",
+                    "replies": 9,
+                    "latestReply": "2022-04-07T06:44:51.083Z",
+                    "latestReplyUserId": "5bb7a8b2066d1b001d528a5f",
+                },
+                {
+                    "id": "5bbcb23d2e1d32001d523816",
+                    "title": "Tack Loading",
+                    "body": '# UPPDATERING\n\n## Kära Loadingvänner! \n\n\nVi vill först börja med att tacka er för en fantastisk lanseringshelg. Den fantastiskt trevliga och positiva stämning som rått och hur pass väl allt har fungerat, spartanskt utförande till trots, värmer våra hjärtan. \n\n\nEr feedback är otroligt värdefull. Just nu ligger störst fokus vid att, i den takt det är möjligt för vår hjälte Stanislav Izotov, rätta till diverse frågetecken och se till att den grundläggande upplevelsen blir så smidig som möjligt. På lång sikt kommer ni att vara en del av hur vårt community utformas.\n\n\n**Vi vill ta detta tillfälle i akt att förklara varför vi valde att lansera nya Loading i ett så ofärdigt skick.**\n\n\nDet handlar om två saker:\n\n\nDet viktigaste är för att vi vill att ni ska känna att ni har möjlighet att direkt påverka utvecklingen och känna er som en del av hela upplevelsen. Att innerst inne veta att alla ni som kommenterat kring saker också sett till att de har blivit till verklighet. Det gäller även er som stöttar oss via Patreon, vilket visar att ni vill se att vi lyckas. Det ger oss en möjlighet att skapa den mötesplats och arena vi vill tillsammans med er, även om ni inte uttrycker det i text.\n\n\nDet andra är för att vi som jobbat med detta projekt i runt fyra månader nu och behövde en milstolpe för att fortsätta sträva framåt, hitta ny energi och motivation - att helt enkelt få en bekräftelse på att det var möjligt och att ni fortfarande var med oss!\n\n\nTill sist vill vi också lägga vikt vid att nämna att ni inte ska känna er oroliga för att era inlägg ska stryka på foten när sidan genomgår sin metamorfos längs vägen. Trots att sidan är som den är och att rätt stora förändringar kommer att ske, kommer alla era inlägg finnas kvar tack vare den molnbaserade serverlösning vi har valt att använda. Det går knappt beskriva skillnaden att bygga en sådan här tjänst idag jämfört med hur det var för 10-20 år sedan.\n\n\n![alt text](https://i.imgur.com/zSHYABw.png"pixelhjärta.jpg")\n\n\n__Redaktionen__',
+                    "category": "other",
+                    "coverImage": "https://i.imgur.com/Ycrx9Ci.jpg",
+                    "postType": "update",
+                    "createdAt": "2018-10-09T13:50:53.896Z",
+                    "updatedAt": "2018-10-14T04:36:51.558Z",
+                    "userId": "5bb751cb066d1b001d5289e0",
+                    "replies": 12,
+                    "latestReply": "2018-10-14T04:36:51.556Z",
+                    "latestReplyUserId": "5bb7ab038fef22001d902690",
+                },
+                {
+                    "id": "5f27b945077189001e59f6a9",
+                    "title": "Tävling – Vinn Dreams till PS4!",
+                    "body": "![](https://i.imgur.com/zd2gINa.png)\n\nVi i Loading-redaktionen tävlar nu ut tre exemplar av Dreams till Playstation 4. Tävlingen går ut på att du ska beskriva en dröm som du har haft och som du skulle vilja bygga upp i spelet. Vi kommer sedan att välja ut tre lyckliga vinnare som får varsitt exemplar.\n\n**Så här gör du för att delta:**\n\nBeskriv en dröm du har haft och som du skulle vilja bygga upp i spelet.\nSkicka in ditt bidrag till info@loading.se med ämnesraden “Dreams tävling”. På så sätt får vi din e-postadress så vi lätt kan kontakta dig ifall du vinner. Se till att skriva ditt Loading-namn antingen i ämnesraden eller i själva meddelandet. \nLägg upp ditt bidrag i denna tråd. Det är frivilligt, men det uppmuntras!\nHåll tummarna för att du vinner!\n\n\nDu har fram till 10 augusti på dig att skicka in ditt bidrag.\n\nLycka till!\n\n![](https://i.imgur.com/6zl9mey.png)\n\n",
+                    "category": "games",
+                    "coverImage": "https://i.imgur.com/zd2gINa.png",
+                    "postType": "update",
+                    "createdAt": "2020-08-03T07:14:13.547Z",
+                    "updatedAt": "2020-08-03T07:14:13.547Z",
+                    "userId": "5bbd0e7403dc9d001d9a5565",
+                    "replies": 0,
+                },
+                {
+                    "id": "60c71783cf57f0001e80cb0d",
+                    "title": "Tävling: Vinn Mass Effect Legendary Edition till Xbox!",
+                    "body": "![](https://i.imgur.com/NHxClYQ.png)\n\nVi i redaktionen har fått ett exemplar av Mass Effect: Legendary Edition till Xbox att tävla ut till en lycklig forumit.\n\nOm du vill få chansen att ge dig ut i rymden med Shepard, Garrus och gänget – för första eller femtioelfte gången – är reglerna enkla:\n\nRita ditt eget rymdskepp och skicka ditt bidrag till info@loading.se (så vi har din e-postadress om du vinner) senast **klockan 23.59 svensk tid den 21 juni 2021**. Märk ditt mail med “Mass Effect”. Det måste inte vara ett rymdskepp som passar in i Mass Effects universum, utan det är bara din egen fantasi som sätter gränserna. Posta gärna bidraget i den här tråden också!\n\nDet bästa rymdskeppet väljs sedan ut av oss i redaktionen.\n\nLycka till!\n\n![](https://i.imgur.com/6zl9mey.png)\n",
+                    "category": "games",
+                    "coverImage": "https://i.imgur.com/NHxClYQ.png",
+                    "postType": "update",
+                    "createdAt": "2021-06-14T08:46:59.250Z",
+                    "updatedAt": "2021-07-01T18:56:20.485Z",
+                    "userId": "5bbd0e7403dc9d001d9a5565",
+                    "replies": 14,
+                    "latestReply": "2021-07-01T18:56:20.485Z",
+                    "latestReplyUserId": "5bb7a9f98fef22001d902604",
+                },
+                {
+                    "id": "5bcf4aca44b859001dad8c66",
+                    "title": "Vill du recensera Dark Souls Remastered för Loading?",
+                    "body": "# Recensionsuppdrag: Dark Souls Remastered\n**Format: Nintendo Switch**\n\nHej allihopa! Vi tänkte att vi skulle testa på ett nytt spännande koncept här på forumet. För att bygga vidare på vår härliga forumkultur och det som gör oss unika tänkte vi testa på att dela ut ett recensionsuppdrag till en av våra läsare.\n\nVi vill helt enkelt ge något tillbaka till er forumiter som är med och bidrar till att Loading är det fantastiska forum som vi har idag. \n\nVi tror att det här skulle kunna leda till någonting väldigt spännande. Någonting som vi inte har gjort förut.\n\nVi har fått ett recensionsexemplar av Dark Souls Remastered från Bergsala och har förstås haft en dialog med utgivaren om den här idén. \n\nDet kommer givetvis att ställas samma krav på text som när vi delar ut ett recensionsuppdrag till den riktiga redaktionen. Samma förutsättningar, samma krav på deadline och texten kommer att behöva korrläsas av redaktionen innan vi publicerar (här är det också bra att tänka på att du kommer att behöva skriva under recensionen med ditt riktiga namn).\n\nSå vad säger du? Är du intresserad av att recensera Dark Souls Remastered för Loadings räkning?\n\nI sådana fall, skriv en rad om vem du är och kanske vilket förhållande du har till serien.\n\nVi behöver ha ditt svar senast fredagen den 26/10.\n\nEfter det kommer vi att välja ut ett av namnen som har anmält sitt intresse.\n\nmed vänliga hälsningar, Redaktionen",
+                    "category": "games",
+                    "coverImage": "https://i.imgur.com/IhhUC15.jpg",
+                    "postType": "update",
+                    "createdAt": "2018-10-23T16:22:34.747Z",
+                    "updatedAt": "2018-11-10T07:23:45.157Z",
+                    "userId": "5bb77830066d1b001d528a1c",
+                    "replies": 41,
+                    "latestReply": "2018-11-10T07:23:45.155Z",
+                    "latestReplyUserId": "5bb751cb066d1b001d5289e0",
+                },
+                {
+                    "id": "5bb7a7de066d1b001d528a5c",
+                    "title": "Välkommen till Loading",
+                    "body": "![Välkommen till Loading](https://i.imgur.com/KwIAdW7.jpg)\n\n# Loading\n#\n#\n.. har alltid varit en plats som är så mycket mer än ett forum på internet. För många av oss har Loading varit ett naturligt inslag i vardagen ända sedan mitten av 00-talet. En mötesplats för att diskutera allt möjligt, umgås eller bara läsa på om de senaste nyheterna i spelbranschen.\n\nNär Loading försvann i början av den här sommaren skapades ett tomrum. Direkt därefter samlades redaktionen och påbörjade samtalet om den framtid som vi nu äntligen skymtar.\n\nNär vi fick möjligheten att ta över varumärket för Loading och börja om tog vi den, för att vi fortfarande tror på att det finns ett behov av en sådan här mötesplats på internet.\n\nArbetet startade och loggan och designen föddes. Vi fick hjälp med att bygga upp sidan från grunden. Av det gamla finns ingenting kvar förutom drömmen och den kan ingen ta ifrån oss. Vi vill att Loading ska fortsätta vara ett rum för inkludering, för gemenskap och för en värdegrund där alla har samma rätt att delta.\n\nVårt nya Loading kommer att fortsätta utvecklas, men för att kunna hålla drömmen vid liv så kommer vi alla att vara viktigare än någonsin förr. Reset Media är inte längre med i bilden. Loading kommer att drivas av Patreon. Forum kostar och vi kommer att behöva hjälpas åt för att skapa det här. Vi hoppas att du vill hjälpa till och bidra. Det behövs inte så mycket om många är med.\n\nVi vill också passa på att säga tack för att du finns, för att det är du som driver oss framåt.\n\nNu sätter vi igång.\n\n#### Välkommen!\n\n#\n#\nPatreon: http://loading.se/post/5bb797b8066d1b001d528a43  \nOrdning- och trivselregler: http://loading.se/post/5bb76fb0066d1b001d528a11  \nHur funkar nya Loading: http://loading.se/post/5bb78aba066d1b001d528a30  \nDen stora förslagstråden: http://loading.se/post/5bb790e5066d1b001d528a3a  \n\nMed varma hälsningar, Redaktionen\n",
+                    "category": "other",
+                    "coverImage": "https://i.imgur.com/KwIAdW7.jpg",
+                    "postType": "update",
+                    "createdAt": "2018-10-05T18:05:18.889Z",
+                    "updatedAt": "2021-06-24T17:51:36.316Z",
+                    "userId": "5bb75ec2066d1b001d5289e9",
+                    "replies": 59,
+                    "latestReply": "2021-06-24T17:51:36.316Z",
+                    "latestReplyUserId": "5bb7b1ac8fef22001d902820",
+                },
+            ],
+            "users": [
+                {
+                    "id": "5bbd0e7403dc9d001d9a5565",
+                    "name": "Redaktionen",
+                    "picture": "eb3f2b33-c557-4042-8d5b-4075f8803761.png",
+                    "role": "editor",
+                    "createdAt": "2018-10-09T20:24:20.486Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7e4ab8fef22001d902cb9",
+                    "name": "n e o v i o l e n c e",
+                    "picture": "2a3b84af-dcfe-4aff-8b36-1416729f7958.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T22:24:43.647Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7b1ac8fef22001d902820",
+                    "name": "soar",
+                    "picture": "d96f110f-c140-4845-b394-15e9c557e088.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T18:47:08.568Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7ae3d8fef22001d90276e",
+                    "name": "Stan64",
+                    "picture": "032f8967-f6ef-4fc3-9ac9-6d0b04194a0f.png",
+                    "role": "editor",
+                    "createdAt": "2018-10-05T18:32:29.672Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7ab038fef22001d902690",
+                    "name": "Metatron",
+                    "picture": "c10b245d-56b3-4f2b-b165-eec55a38b3ec.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T18:18:43.176Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7aa868fef22001d902665",
+                    "name": "Kiki",
+                    "picture": "8b0e6e55-6b4a-4386-8551-e510b5e62fd4.png",
+                    "role": "user",
+                    "createdAt": "2018-10-05T18:16:38.350Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7a9f98fef22001d902604",
+                    "name": "Joe E Tata",
+                    "picture": "523008b9-aa0b-44f2-8376-f381ee920117.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T18:14:17.021Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7a8b2066d1b001d528a5f",
+                    "name": "Sarato",
+                    "picture": "ef3d90ec-b6fc-46b8-8265-a2829706164f.jpg",
+                    "role": "moderator",
+                    "createdAt": "2018-10-05T18:08:50.282Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb77830066d1b001d528a1c",
+                    "name": "Elin Ekberg",
+                    "picture": "a97bf0c2-4de3-4888-8acc-78f9b58e65dc.png",
+                    "role": "user",
+                    "createdAt": "2018-10-05T14:41:52.609Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb762ed066d1b001d5289f2",
+                    "name": "Aleksandar Buntic",
+                    "picture": "116c4d02-919e-468c-9191-3bebabf2f665.png",
+                    "role": "editor",
+                    "createdAt": "2018-10-05T13:11:09.961Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7618d066d1b001d5289ef",
+                    "name": "Niklas Karlsson",
+                    "picture": "c8f27420-089e-4f9a-adf9-8b7c9fb85d4a.png",
+                    "role": "editor",
+                    "createdAt": "2018-10-05T13:05:17.573Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb75ec2066d1b001d5289e9",
+                    "name": "Aaron Vesterberg Ringhög",
+                    "picture": "b44e7341-421f-48fb-81fc-331acd93ba34.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T12:53:22.371Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb751cb066d1b001d5289e0",
+                    "name": "Isabell Rydén",
+                    "picture": "b12a2fe1-101e-4ee3-9679-941b24b02e20.jpg",
+                    "role": "editor",
+                    "createdAt": "2018-10-05T11:58:03.230Z",
+                    "status": "active",
+                },
+            ],
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_editorials(page=1, post_type="update", sort="title")
+
+        self.assertDictEqual(response.get("post"), expected_response)
+
+        threads = response.get("post").get("posts")
+
+        for thread in threads:
+            self.assertEqual(thread.get("postType"), "update")
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_editorials_failure_page_too_low(self, mock_requests):
+        status_code = 404
+        expected_response = {"code": status_code, "post": {"posts": [], "users": []}}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = response = api.get_editorials(
+            page=-1,
+            post_type="update",
+            sort="title",
+        )
+
+        self.assertDictEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_editorials_failure_page_too_high(self, mock_requests):
+        status_code = 404
+        expected_response = {"code": status_code, "post": {"posts": [], "users": []}}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = {"posts": [], "users": []}
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = response = api.get_editorials(
+            page=999,
+            post_type="update",
+            sort="title",
+        )
+
+        self.assertDictEqual(response, expected_response)

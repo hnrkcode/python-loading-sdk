@@ -328,3 +328,123 @@ class TestLoadingApiWrapper(unittest.TestCase):
 
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response.get("post"), expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_thread_success(self, mock_requests):
+        status_code = 200
+        expected_response = {
+            "posts": [
+                {
+                    "id": "5f9e4e8c2c32e2001ed17170",
+                    "title": "Spelmusik samplad i låtar",
+                    "body": "Har ni upptäckt några samples från spelmusik när ni suttit och lyssnat på ''vanlig'' musik?\n\nDela med er av era upptäckter!\n\nBörjar med en låt från den gamla fjortisfavoriten Byz, Byz - Respekt. Har inte kunnat säkerställa det men visst måste väl det vara ett sample av Mike Tyson's Punch-Out! - Fight Theme https://youtu.be/VE8vKLEK6A8 ?\nhttps://youtu.be/EnBHwl8-bf4\nÄr det även ljudeffekter från Link där vid 02:32, om jag hör rätt?\n\nArmy of the Pharaohs - Bloody Tears. Sample taget från Castlevania II. \nDet tog nästan pinsamt nog några genomlyssningar innan det klickade, låtarna har ju för fan samma namn också haha!\nhttps://youtu.be/rrJbpJwmQJc\nhttp://youtu.be/e2oZtvjg5oA\n\nHeavy Metal Kings - Splatterfest. Sample taget från första Medal of Honor - Rjuken Sabotage. Denna var svårare, fick bara en känsla att den var från ett spel och sökte då upp svaret.\nhttps://youtu.be/1VuVyfmPUd8\nhttps://youtu.be/tdWt-wl-wuw\n",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2020-11-01T05:58:36.722Z",
+                    "updatedAt": "2020-11-01T06:02:59.322Z",
+                    "userId": "5bb80ac88fef22001d902d69",
+                    "replies": 0,
+                    "edits": 5,
+                    "lastEdit": "2020-11-01T06:02:59.321Z",
+                }
+            ],
+            "users": [
+                {
+                    "id": "5bb80ac88fef22001d902d69",
+                    "name": "Twiggy",
+                    "picture": "045d72f0-ce02-4613-99f1-c01c3b685cf4.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-06T01:07:20.176Z",
+                    "status": "active",
+                }
+            ],
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_thread("5f9e4e8c2c32e2001ed17170")
+
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("post"), expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_thread_failure_empty_thread_id(self, mock_requests):
+        status_code = 404
+        expected_response = {
+            "code": status_code,
+            "message": '"thread_id" is not allowed to be empty',
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = None
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_thread("")
+
+        self.assertEqual(response.get("code"), 404)
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_thread_failure_not_a_thread_id(self, mock_requests):
+        status_code = 200
+        expected_response = {
+            "code": status_code,
+            "message": "Exists, but was not a thread id",
+        }
+        regular_post = {
+            "posts": [
+                {
+                    "id": "609ef4ee90c3d5001e889c5a",
+                    "body": "Tror inte det bör vara helt omöjligt att typ köra mönster efter tredjedelar eller typ gyllene snittet. Ha olika ankarpunkter som betygen kan kretsa runt. Tänker dock att i en helt öppen lösning där bilder mest delas på internet så kommer graderingen göras helt i interagering med andra användare, låta det hela bli lite mer subjektivt, liksom.",
+                    "postType": "regular",
+                    "createdAt": "2021-05-14T22:08:46.301Z",
+                    "updatedAt": "2021-05-14T22:08:46.301Z",
+                    "parentId": "609e2783b7a187001e0c0440",
+                    "userId": "5bb7aa868fef22001d902665",
+                    "replies": 0,
+                }
+            ],
+            "users": [
+                {
+                    "id": "5bb7aa868fef22001d902665",
+                    "name": "Kiki",
+                    "picture": "8b0e6e55-6b4a-4386-8551-e510b5e62fd4.png",
+                    "role": "user",
+                    "createdAt": "2018-10-05T18:16:38.350Z",
+                    "status": "active",
+                }
+            ],
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = regular_post
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_thread("609ef4ee90c3d5001e889c5a")
+
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_thread_failure_does_not_exist(self, mock_requests):
+        status_code = 404
+        expected_response = {"code": status_code, "message": "Post does not exist"}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_thread("this_id_does_not_exist")
+
+        self.assertEqual(response.get("code"), 404)
+        self.assertEqual(response, expected_response)

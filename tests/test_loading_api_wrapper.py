@@ -371,6 +371,18 @@ class TestLoadingApiWrapper(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response.get("post"), expected_response)
 
+        api = LoadingApiWrapper()
+        response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=0)
+
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("post"), expected_response)
+
+        api = LoadingApiWrapper()
+        response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=1)
+
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("post"), expected_response)
+
     @patch("loading_api_wrapper.api.requests")
     def test_get_thread_failure_empty_thread_id(self, mock_requests):
         status_code = 404
@@ -447,4 +459,88 @@ class TestLoadingApiWrapper(unittest.TestCase):
         response = api.get_thread("this_id_does_not_exist")
 
         self.assertEqual(response.get("code"), 404)
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_thread_failure_page_too_low(self, mock_requests):
+        status_code = 200
+        expected_response = {"code": 200, "post": {"posts": [], "users": []}}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = {
+            "posts": [
+                {
+                    "id": "5f9e4e8c2c32e2001ed17170",
+                    "title": "Spelmusik samplad i låtar",
+                    "body": "Har ni upptäckt några samples från spelmusik när ni suttit och lyssnat på ''vanlig'' musik?\n\nDela med er av era upptäckter!\n\nBörjar med en låt från den gamla fjortisfavoriten Byz, Byz - Respekt. Har inte kunnat säkerställa det men visst måste väl det vara ett sample av Mike Tyson's Punch-Out! - Fight Theme https://youtu.be/VE8vKLEK6A8 ?\nhttps://youtu.be/EnBHwl8-bf4\nÄr det även ljudeffekter från Link där vid 02:32, om jag hör rätt?\n\nArmy of the Pharaohs - Bloody Tears. Sample taget från Castlevania II. \nDet tog nästan pinsamt nog några genomlyssningar innan det klickade, låtarna har ju för fan samma namn också haha!\nhttps://youtu.be/rrJbpJwmQJc\nhttp://youtu.be/e2oZtvjg5oA\n\nHeavy Metal Kings - Splatterfest. Sample taget från första Medal of Honor - Rjuken Sabotage. Denna var svårare, fick bara en känsla att den var från ett spel och sökte då upp svaret.\nhttps://youtu.be/1VuVyfmPUd8\nhttps://youtu.be/tdWt-wl-wuw\n",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2020-11-01T05:58:36.722Z",
+                    "updatedAt": "2020-11-01T06:02:59.322Z",
+                    "userId": "5bb80ac88fef22001d902d69",
+                    "replies": 0,
+                    "edits": 5,
+                    "lastEdit": "2020-11-01T06:02:59.321Z",
+                }
+            ],
+            "users": [
+                {
+                    "id": "5bb80ac88fef22001d902d69",
+                    "name": "Twiggy",
+                    "picture": "045d72f0-ce02-4613-99f1-c01c3b685cf4.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-06T01:07:20.176Z",
+                    "status": "active",
+                }
+            ],
+        }
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=-1)
+
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_thread_failure_page_too_high(self, mock_requests):
+        status_code = 200
+        expected_response = {"code": 200, "post": {"posts": [], "users": []}}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = {
+            "posts": [
+                {
+                    "id": "5f9e4e8c2c32e2001ed17170",
+                    "title": "Spelmusik samplad i låtar",
+                    "body": "Har ni upptäckt några samples från spelmusik när ni suttit och lyssnat på ''vanlig'' musik?\n\nDela med er av era upptäckter!\n\nBörjar med en låt från den gamla fjortisfavoriten Byz, Byz - Respekt. Har inte kunnat säkerställa det men visst måste väl det vara ett sample av Mike Tyson's Punch-Out! - Fight Theme https://youtu.be/VE8vKLEK6A8 ?\nhttps://youtu.be/EnBHwl8-bf4\nÄr det även ljudeffekter från Link där vid 02:32, om jag hör rätt?\n\nArmy of the Pharaohs - Bloody Tears. Sample taget från Castlevania II. \nDet tog nästan pinsamt nog några genomlyssningar innan det klickade, låtarna har ju för fan samma namn också haha!\nhttps://youtu.be/rrJbpJwmQJc\nhttp://youtu.be/e2oZtvjg5oA\n\nHeavy Metal Kings - Splatterfest. Sample taget från första Medal of Honor - Rjuken Sabotage. Denna var svårare, fick bara en känsla att den var från ett spel och sökte då upp svaret.\nhttps://youtu.be/1VuVyfmPUd8\nhttps://youtu.be/tdWt-wl-wuw\n",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2020-11-01T05:58:36.722Z",
+                    "updatedAt": "2020-11-01T06:02:59.322Z",
+                    "userId": "5bb80ac88fef22001d902d69",
+                    "replies": 0,
+                    "edits": 5,
+                    "lastEdit": "2020-11-01T06:02:59.321Z",
+                }
+            ],
+            "users": [
+                {
+                    "id": "5bb80ac88fef22001d902d69",
+                    "name": "Twiggy",
+                    "picture": "045d72f0-ce02-4613-99f1-c01c3b685cf4.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-06T01:07:20.176Z",
+                    "status": "active",
+                }
+            ],
+        }
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=2)
+
+        self.assertEqual(response.get("code"), 200)
         self.assertEqual(response, expected_response)

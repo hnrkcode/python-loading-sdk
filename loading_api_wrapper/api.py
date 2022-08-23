@@ -81,3 +81,40 @@ class LoadingApiWrapper:
             }
 
         return response.json()
+
+    def get_thread(self, thread_id):
+        """Returns post data if the id belongs to a thread start."""
+
+        if not thread_id:
+            return {"code": 404, "message": '"thread_id" is not allowed to be empty'}
+
+        url = f"{API_URL}/{API_VERSION}/posts/{thread_id}"
+        headers = {"User-Agent": USER_AGENT}
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            post_data = response.json()
+            parent_post = post_data["posts"][-1]
+            parent_user = None
+
+            # Only thread starts has a title so anything else is a regular post.
+            if "title" in parent_post:
+                for user in post_data["users"]:
+                    if user["id"] == parent_post["userId"]:
+                        parent_user = user
+                        break
+
+                return {
+                    "code": response.status_code,
+                    "post": {
+                        "posts": [parent_post],
+                        "users": [parent_user],
+                    },
+                }
+            else:
+                return {
+                    "code": response.status_code,
+                    "message": "Exists, but was not a thread id",
+                }
+
+        return response.json()

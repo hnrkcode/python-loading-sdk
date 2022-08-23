@@ -1,3 +1,5 @@
+import math
+
 import requests
 
 API_URL = "https://api.loading.se"
@@ -82,7 +84,7 @@ class LoadingApiWrapper:
 
         return response.json()
 
-    def get_thread(self, thread_id):
+    def get_thread(self, thread_id, page=None):
         """Returns post data if the id belongs to a thread start."""
 
         if not thread_id:
@@ -90,31 +92,40 @@ class LoadingApiWrapper:
 
         url = f"{API_URL}/{API_VERSION}/posts/{thread_id}"
         headers = {"User-Agent": USER_AGENT}
+
+        # Chooses a specific page instead of the first page which is the default page.
+        if page and page > 1:
+            headers["page"] = str(page)
+
         response = requests.get(url, headers=headers)
 
-        if response.status_code == 200:
-            post_data = response.json()
-            parent_post = post_data["posts"][-1]
-            parent_user = None
+        if response.status_code != 200:
+            return response.json()
 
-            # Only thread starts has a title so anything else is a regular post.
-            if "title" in parent_post:
-                for user in post_data["users"]:
-                    if user["id"] == parent_post["userId"]:
-                        parent_user = user
-                        break
+        data = response.json()
 
+        if "title" not in data["posts"][-1]:
+            return {
+                "code": response.status_code,
+                "message": "Exists, but was not a thread id",
+            }
+
+        # Doing this checks to make sure it only return data from a page that exists.
+        if page:
+            replies = data["posts"][-1]["replies"]
+            pages = math.ceil(replies / 30)
+
+            # There is always atleast one page.
+            if pages == 0:
+                pages = 1
+
+            # Page is out of range.
+            if page < 1 or page > pages:
                 return {
                     "code": response.status_code,
-                    "post": {
-                        "posts": [parent_post],
-                        "users": [parent_user],
-                    },
-                }
-            else:
-                return {
-                    "code": response.status_code,
-                    "message": "Exists, but was not a thread id",
+                    "post": {"posts": [], "users": []},
                 }
 
-        return response.json()
+        successful_response = {"code": response.status_code, "post": data}
+
+        return successful_response

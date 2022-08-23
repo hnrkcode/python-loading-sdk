@@ -34,6 +34,27 @@ class LoadingApiWrapper:
 
         return response.json()
 
+    def _get_threads_in_forum_category(self, category_name, page):
+        url = f"{API_URL}/{API_VERSION}/posts/"
+        headers = {"User-Agent": USER_AGENT, category_name: category_name}
+
+        # Chooses a specific page instead of the first page which is the default page.
+        if page and page > 1:
+            headers["page"] = str(page)
+
+        # Doing this checks to make sure it only return data from a page that exists.
+        if page and page < 1:
+            return {"code": 404, "post": {"posts": [], "users": []}}
+
+        response = requests.get(url, headers=headers)
+        data = response.json()
+
+        # Page out of range.
+        if not len(data["posts"]):
+            return {"code": 404, "post": data}
+
+        return {"code": 200, "post": data}
+
     def get_profile(self):
         url = f"{API_URL}/{API_VERSION}/users/profile"
         headers = {
@@ -131,22 +152,13 @@ class LoadingApiWrapper:
         return successful_response
 
     def get_games(self, page=None):
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {"User-Agent": USER_AGENT, "games": "games"}
+        category_name = "games"
+        thread_data = self._get_threads_in_forum_category(category_name, page)
 
-        # Chooses a specific page instead of the first page which is the default page.
-        if page and page > 1:
-            headers["page"] = str(page)
+        return thread_data
 
-        # Doing this checks to make sure it only return data from a page that exists.
-        if page and page < 1:
-            return {"code": 404, "post": {"posts": [], "users": []}}
+    def get_other(self, page=None):
+        category_name = "other"
+        thread_data = self._get_threads_in_forum_category(category_name, page)
 
-        response = requests.get(url, headers=headers)
-        data = response.json()
-
-        # Page out of range.
-        if not len(data["posts"]):
-            return {"code": 404, "post": data}
-
-        return {"code": 200, "post": data}
+        return thread_data

@@ -959,3 +959,251 @@ class TestLoadingApiWrapper(unittest.TestCase):
         response = api.get_games(page=999)
 
         self.assertDictEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_other_success(self, mock_requests):
+        status_code = 200
+        expected_response = {
+            "posts": [
+                {
+                    "id": "5bc22315c0c2ba001d07b888",
+                    "title": "Tipsa om Youtube-kanaler som är värda att följa (och varför!)",
+                    "body": "Jag har några nödvändiga stopp på Youtube.\n\nDit jag alltid går när det finns en ny film.\n\nDet är dom här:\n\n**Good Mythical Morning**\nhttps://www.youtube.com/channel/UC4PooiX37Pld1T8J5SYT-SQ\nGMM har ett nytt avsnitt varje dag klockan 12:00 (och ett extra i Good Mythical More). Det här är (om du på något sätt missat Rhett & Link) en talkshow i miniformat, med fokus på olika tester.\n\n**Ashens**\nhttps://www.youtube.com/channel/UCxt9Pvye-9x_AIcb1UtmF1Q\nDet här är för alla er som tycker att Amiga Power hade världens bästa humor.\n\n**You suck at cooking**\nhttps://www.youtube.com/channel/UCekQr9znsk2vWxBo3YiLq2w\nDet är sällan något nytt händer på YSAC, men när det händer är det alltid det bästa som hänt just den veckan.\n\n**Juns Kitchen**\nhttps://www.youtube.com/channel/UCRxAgfYexGLlu1WHGIMUDqw\nMer mat, men så långt från YSAC på matspektrumet som det går att komma. Det här är imponerande mat som du aldrig kommer att göra lika bra själv och världens mest väluppfostrade katter. \n\n**The Report of the Week**\nhttps://www.youtube.com/channel/UCeR0n8d3ShTn_yrMhpwyE1Q\nSnabbmatsrecensioner med en så torr humor att den måste ha kostym. Det är så här jag föreställer mig  att Alexander Rehnman skulle vara, om han recenserade snabbmat.\n\n**The Try Guys**\nhttps://www.youtube.com/channel/UCpi8TJfiA4lKGkaXs__YdBA\nPå något sätt lyckades The Try Guys lämna Buzzfeed OCH ta med sig varumärket. Zach är naturligtvis bäst.\n\n**Challa**\nhttps://www.youtube.com/channel/UCQa2X1CNCxWF3M6h68g5q6g\nTecknare med humor och självdistans. Och med ett väldigt speciellt sätt att artikulera sig som jag finner fascinerade att lyssna på.\n\n**Worth it**\nhttps://www.youtube.com/playlist?list=PL5vtqDuUM1DmXwYYAQcyUwtcalp_SesZD\nEn serie under Buzzfeed där Steven och Andrew testar tre versioner av samma maträtt, men i tre helt olika prisklasser.\n\nNu är det din tur - vad följer du?\n\n\n",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2018-10-13T16:53:41.038Z",
+                    "updatedAt": "2018-10-15T10:17:00.297Z",
+                    "userId": "5bb76074066d1b001d5289ed",
+                    "replies": 26,
+                    "latestReply": "2018-10-15T10:17:00.291Z",
+                    "latestReplyUserId": "5bb76b06066d1b001d528a04",
+                },
+                {
+                    "id": "5bbcb23d2e1d32001d523816",
+                    "title": "Tack Loading",
+                    "body": '# UPPDATERING\n\n## Kära Loadingvänner! \n\n\nVi vill först börja med att tacka er för en fantastisk lanseringshelg. Den fantastiskt trevliga och positiva stämning som rått och hur pass väl allt har fungerat, spartanskt utförande till trots, värmer våra hjärtan. \n\n\nEr feedback är otroligt värdefull. Just nu ligger störst fokus vid att, i den takt det är möjligt för vår hjälte Stanislav Izotov, rätta till diverse frågetecken och se till att den grundläggande upplevelsen blir så smidig som möjligt. På lång sikt kommer ni att vara en del av hur vårt community utformas.\n\n\n**Vi vill ta detta tillfälle i akt att förklara varför vi valde att lansera nya Loading i ett så ofärdigt skick.**\n\n\nDet handlar om två saker:\n\n\nDet viktigaste är för att vi vill att ni ska känna att ni har möjlighet att direkt påverka utvecklingen och känna er som en del av hela upplevelsen. Att innerst inne veta att alla ni som kommenterat kring saker också sett till att de har blivit till verklighet. Det gäller även er som stöttar oss via Patreon, vilket visar att ni vill se att vi lyckas. Det ger oss en möjlighet att skapa den mötesplats och arena vi vill tillsammans med er, även om ni inte uttrycker det i text.\n\n\nDet andra är för att vi som jobbat med detta projekt i runt fyra månader nu och behövde en milstolpe för att fortsätta sträva framåt, hitta ny energi och motivation - att helt enkelt få en bekräftelse på att det var möjligt och att ni fortfarande var med oss!\n\n\nTill sist vill vi också lägga vikt vid att nämna att ni inte ska känna er oroliga för att era inlägg ska stryka på foten när sidan genomgår sin metamorfos längs vägen. Trots att sidan är som den är och att rätt stora förändringar kommer att ske, kommer alla era inlägg finnas kvar tack vare den molnbaserade serverlösning vi har valt att använda. Det går knappt beskriva skillnaden att bygga en sådan här tjänst idag jämfört med hur det var för 10-20 år sedan.\n\n\n![alt text](https://i.imgur.com/zSHYABw.png"pixelhjärta.jpg")\n\n\n__Redaktionen__',
+                    "category": "other",
+                    "coverImage": "https://i.imgur.com/Ycrx9Ci.jpg",
+                    "postType": "update",
+                    "createdAt": "2018-10-09T13:50:53.896Z",
+                    "updatedAt": "2018-10-14T04:36:51.558Z",
+                    "userId": "5bb751cb066d1b001d5289e0",
+                    "replies": 12,
+                    "latestReply": "2018-10-14T04:36:51.556Z",
+                    "latestReplyUserId": "5bb7ab038fef22001d902690",
+                },
+                {
+                    "id": "5bbfbbe57f24bc001d2b6693",
+                    "title": "Hyrenbostad.se, Trovit etc.",
+                    "body": 'Jag har inte stått i bostadskö speciellt länge tyvärr, men jag samlar pengar fort och förväntas kunna köpa något väldigt fint i slutet på nästa sommar.\nSom Stockholmare får man oftast stå i kö i 10-15år för att hitta något ordentligt, speciellt i innerstaden. Eller så kan man köpa loss en liten 1a/2a för ca 2miljoner.\nMen jag råkade precis klicka in på sidor där folk hyr ut sina lägenheter för en svinliten avgift (priset för 2 nätter på hotell ungefär) och låter en bo där under en "obegränsad" period.\nVilket är sjukt.\n\nNågon som vet om det rör sig om helt fejkade sidor, eller har någon här någon som helst erfarenhet? För jag är väldigt förvirrad över situationen, vad är det jag missat? Alla som står utan bostad hade ju klickat hem dessa bostäder på 5 sekunder?\n\nHär är ett exempel. Innerstan, en 2:a, 2.300kr i månaden, obegränsad uthyrning.\nhttps://www.hyrenbostad.se/hyresbostad/678999/2-rums-laegenhet-paa-39-m?utm_campaign=Premium&utm_source=Trovit&utm_medium=CPC',
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2018-10-11T21:08:53.826Z",
+                    "updatedAt": "2018-10-12T09:39:14.810Z",
+                    "userId": "5bbbe77bf1deda001d33bde2",
+                    "replies": 4,
+                    "latestReply": "2018-10-12T09:39:14.807Z",
+                    "latestReplyUserId": "5bb75fb7066d1b001d5289eb",
+                },
+                {
+                    "id": "5bbf7e767f24bc001d2b651d",
+                    "title": "Glass (M. Night Shyamalan) - Trailer 2",
+                    "body": "Uppföljaren till Unbreakable och Split.\n\nPremiär i början av nästa år.\n\nhttps://www.youtube.com/watch?v=Q7ztHi9ejp4",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2018-10-11T16:46:46.357Z",
+                    "updatedAt": "2018-10-12T04:51:56.215Z",
+                    "userId": "5bb76074066d1b001d5289ed",
+                    "replies": 3,
+                    "latestReply": "2018-10-12T04:51:56.213Z",
+                    "latestReplyUserId": "5bb773d1066d1b001d528a17",
+                },
+                {
+                    "id": "5bbef4c87f24bc001d2b627d",
+                    "title": "Den stora AI tråden",
+                    "body": "Vad har ni för tankar kring ämnet?  \n\nTror ni alls att en maskin kan uppvisa vad som vi menar är intelligens? \n\nMedvetande? \n\nLiv? \n\nNi fattar. \n\nSjälv kommer jag stå först i robotarnas befrielsefront!",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2018-10-11T06:59:20.846Z",
+                    "updatedAt": "2018-10-11T09:24:58.768Z",
+                    "userId": "5bb7b6c48fef22001d90292c",
+                    "replies": 3,
+                    "latestReply": "2018-10-11T09:24:58.761Z",
+                    "latestReplyUserId": "5bb7b6c48fef22001d90292c",
+                },
+                {
+                    "id": "5bbb7886f1deda001d33bb9c",
+                    "title": "Problem med att logga in/Skapa konto",
+                    "body": "Jag tänkte bara tipsa er som har problem med att logga in eller problem med att skapa konto att det verkar som att rensa historiken med cachen och allt löser det problemet. Iallafall på chrome webbläsaren. (:",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2018-10-08T15:32:22.920Z",
+                    "updatedAt": "2018-10-11T04:40:16.482Z",
+                    "userId": "5bb7a9ea8fef22001d9025ff",
+                    "replies": 4,
+                    "latestReply": "2018-10-11T04:40:16.477Z",
+                    "latestReplyUserId": "5bbed3bd7f24bc001d2b6221",
+                },
+                {
+                    "id": "5bbe2ac5524a40001d207584",
+                    "title": "Orkanen Michael och Florida",
+                    "body": "Orkanen Michael närmar sig Florida.\n\nDen är nästan där.\n\nDen senaste mätningen har satt orkanen till en kategori 4, men den är nära fem och kommer bli starkare hela vägen in till land. Det är med stor sannolikhet den mest intensiva storm som träffat Florida sedan man började mätningarna (för länge sedan).\n\nDet är en knapp timme kvar innan Michael når land.\n\nDet går att hitta livesändningar från dom som jagar stormar här:\n\nhttps://livestormchasing.com/map",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2018-10-10T16:37:25.976Z",
+                    "updatedAt": "2018-10-10T18:21:17.800Z",
+                    "userId": "5bb76074066d1b001d5289ed",
+                    "replies": 4,
+                    "latestReply": "2018-10-10T18:21:17.798Z",
+                    "latestReplyUserId": "5bb76074066d1b001d5289ed",
+                },
+                {
+                    "id": "5bb78aba066d1b001d528a30",
+                    "title": "Hur funkar nya Loading a.k.a Loading for dummies",
+                    "body": "Nya Loading ser lite annorlunda som du kanske har märkt =) på framsidan kommer du hitta olika kategorier som vi kommer att använda för olika sorters material och för olika syften:\n\n* UPPDATERING\n\n    Kategorin vi kommer att använda då vi annonserar uppdateringar, händelser eller nyheter\n* ÅSIKT\n\n    Här kommer vi lägga våra krönikor, förtittar, reportage och intervjuer e.t.c\n* SAMTAL\n\n    Här kommer vi lyfta intressanta och spännande trådar från forumet som vi tycker förtjänar lite extra uppmärksamhet och kärlek\n* RECENSION\n\n    ̣Vi kommer såklart fortsätta skriva recensioner antingen av spel vi fått från utgivare eller som vi köpt själva.\n* PODCAST\n\n    I Loadings podcastnätverk ingår TV-spelspodden och Spelsnack. Här kan ni ta del av några av Loadingredaktionens tankar kring spel och spelindustrin.\n* STREAM\n\n    Vi kommer fortsätta att streama när vi spelar spel via våra streamingkanaler som du kan hitta längst ner på sidan.\n\n**Forumet**\nSom du snabbt kommer att märka har vi bara två forumkategorier på nya Loading. Det är SPEL-forumet och ANNAT-forumet - Vi vill helt enkelt att så många som möjligt ska delta i de samtal som förs och att det som är mest aktuellt kommer att vara det som flest vill vara en del av.\n\n**Att Använda Loading på mobilen**\nVi har märkt att olika webbläsare och mobiler hanterar nya Loading lite olika. Ett tips är att välja att visa sidan i datoranpassat läge eller liknande funktion som du hittar i inställningarna. I övrigt är nya Loading skapat för att fungera lika bra på mobilen som på datorn.\n\n**Publicera inlägg:**\nFör att publicera ett inlägg skriver du i rutan som vanligt trycker på “skicka” så är det klart!\n\nVill du snygga till ditt inlägg så kan vi berätta att nya Loading använder Markdown som verktyg för att formatera text. Det är ett jättesmidigt verktyg och du kan hitta en jättebra lathund [**HÄR**](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)\noch vill du testa och se hur ditt inlägg ser ut innan du publicerar det kan du göra det [**HÄR**](https://dillinger.io)\n\nVälkommen!",
+                    "category": "other",
+                    "postType": "regular",
+                    "createdAt": "2018-10-05T16:00:58.973Z",
+                    "updatedAt": "2018-10-07T16:57:29.528Z",
+                    "userId": "5bb7618d066d1b001d5289ef",
+                    "replies": 33,
+                    "latestReply": "2018-10-07T16:57:29.526Z",
+                    "latestReplyUserId": "5bb7618d066d1b001d5289ef",
+                },
+            ],
+            "users": [
+                {
+                    "id": "5bbed3bd7f24bc001d2b6221",
+                    "name": "voldo83#912",
+                    "picture": "ddd472f8-7a19-456c-8321-a59921afe9e8.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-11T04:38:21.270Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bbbe77bf1deda001d33bde2",
+                    "name": "VodkaCitron",
+                    "picture": "50836acb-0f85-4876-9bf6-c895dec4eaed.png",
+                    "role": "user",
+                    "createdAt": "2018-10-08T23:25:47.618Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7b6c48fef22001d90292c",
+                    "name": "nmhbm",
+                    "picture": "9306e0da-fa8f-4d40-87b5-aeb3066c0ccb.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T19:08:52.800Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7ab038fef22001d902690",
+                    "name": "Metatron",
+                    "picture": "c10b245d-56b3-4f2b-b165-eec55a38b3ec.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T18:18:43.176Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7a9ea8fef22001d9025ff",
+                    "name": "Eric",
+                    "picture": "38a95df8-b19e-4e57-9e09-28704fb53b5f.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T18:14:02.248Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb773d1066d1b001d528a17",
+                    "name": "Simon Liljedahl",
+                    "picture": "5cff7bc0-68b3-47c8-90a7-dd1d20f3885d.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T14:23:13.767Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb76b06066d1b001d528a04",
+                    "name": "Petter Arbman",
+                    "picture": "6576d9be-119f-448c-aa06-c330a54e4e0a.jpg",
+                    "role": "editor",
+                    "createdAt": "2018-10-05T13:45:42.886Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb7618d066d1b001d5289ef",
+                    "name": "Niklas Karlsson",
+                    "picture": "c8f27420-089e-4f9a-adf9-8b7c9fb85d4a.png",
+                    "role": "editor",
+                    "createdAt": "2018-10-05T13:05:17.573Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb76074066d1b001d5289ed",
+                    "name": "Oskar Skog",
+                    "picture": "4c5f014d-2266-4642-bc20-5edff5ac33a9.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T13:00:36.127Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb75fb7066d1b001d5289eb",
+                    "name": "Johan Lorentzon",
+                    "picture": "0b0bcb70-54c3-4b7d-9238-ac7a08b8fb64.jpg",
+                    "role": "user",
+                    "createdAt": "2018-10-05T12:57:27.746Z",
+                    "status": "active",
+                },
+                {
+                    "id": "5bb751cb066d1b001d5289e0",
+                    "name": "Isabell Rydén",
+                    "picture": "b12a2fe1-101e-4ee3-9679-941b24b02e20.jpg",
+                    "role": "editor",
+                    "createdAt": "2018-10-05T11:58:03.230Z",
+                    "status": "active",
+                },
+            ],
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_games(page=91)
+
+        self.assertDictEqual(response.get("post"), expected_response)
+
+        threads = response.get("post").get("posts")
+
+        for thread in threads:
+            self.assertEqual(thread.get("category"), "other")
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_other_failure_page_too_low(self, mock_requests):
+        status_code = 404
+        expected_response = {"code": status_code, "post": {"posts": [], "users": []}}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_other(page=-1)
+
+        self.assertDictEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_other_failure_page_too_high(self, mock_requests):
+        status_code = 404
+        expected_response = {"code": status_code, "post": {"posts": [], "users": []}}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = {"posts": [], "users": []}
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_other(page=999)
+
+        self.assertDictEqual(response, expected_response)

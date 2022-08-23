@@ -253,3 +253,78 @@ class TestLoadingApiWrapper(unittest.TestCase):
         self.assertEqual(response.get("code"), 400)
         self.assertEqual(response.get("message"), "Validation error")
         self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_post_failure_empty_post_id(self, mock_requests):
+        expected_response = {
+            "code": 404,
+            "message": '"post_id" is not allowed to be empty',
+        }
+
+        mock_response = MagicMock()
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_post("")
+
+        self.assertEqual(response.get("code"), 404)
+        self.assertEqual(
+            response.get("message"), '"post_id" is not allowed to be empty'
+        )
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_post_failure_post_does_not_exist(self, mock_requests):
+        expected_response = {"code": 404, "message": "Post does not exist"}
+
+        mock_response = MagicMock()
+        mock_response.status_code = 404
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_post("none_existing_post_id")
+
+        self.assertEqual(response.get("code"), 404)
+        self.assertEqual(response.get("message"), "Post does not exist")
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_get_post_success(self, mock_requests):
+        status_code = 200
+        expected_response = {
+            "posts": [
+                {
+                    "id": "609f78fe90c3d5001e889e33",
+                    "body": "Fota! Fota! Fota allihop! POKEMON! ",
+                    "postType": "regular",
+                    "createdAt": "2021-05-15T07:32:14.156Z",
+                    "updatedAt": "2021-05-15T07:32:14.156Z",
+                    "parentId": "609e2783b7a187001e0c0440",
+                    "userId": "5d5948e1455110001e3f4d8b",
+                    "replies": 0,
+                }
+            ],
+            "users": [
+                {
+                    "id": "5d5948e1455110001e3f4d8b",
+                    "name": "Wirus",
+                    "picture": "f0e49672-ae24-4a68-a714-0f1165b69775.jpg",
+                    "role": "user",
+                    "createdAt": "2019-08-18T12:47:29.578Z",
+                    "status": "active",
+                }
+            ],
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.get.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.get_post("none_existing_post_id")
+
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("post"), expected_response)

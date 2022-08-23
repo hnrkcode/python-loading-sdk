@@ -62,3 +62,22 @@ class LoadingApiWrapper:
             }
 
         return response.json()
+
+    def get_post(self, post_id):
+        if not post_id:
+            return {"code": 404, "message": '"post_id" is not allowed to be empty'}
+
+        url = f"{API_URL}/{API_VERSION}/posts/{post_id}"
+        headers = {
+            "User-Agent": USER_AGENT,
+        }
+
+        response = requests.get(url, headers=headers)
+
+        if response.status_code == 200:
+            return {
+                "code": response.status_code,
+                "post": response.json(),
+            }
+
+        return response.json()

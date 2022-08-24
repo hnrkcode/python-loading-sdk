@@ -1,4 +1,6 @@
+from concurrent.futures import thread
 import math
+from pydoc import resolve
 
 import requests
 
@@ -203,3 +205,73 @@ class LoadingApiWrapper:
             return {"code": 404, "post": data}
 
         return {"code": 200, "post": data}
+
+    def create_post(self, thread_id, message):
+        if not thread_id:
+            return {"code": 400, "message": '"thread_id" is not allowed to be empty'}
+
+        url = f"{API_URL}/{API_VERSION}/posts/{thread_id}"
+        headers = {
+            "User-Agent": USER_AGENT,
+            "content-type": "application/x-www-form-urlencoded",
+        }
+        data = {"body": message}
+        response = requests.post(
+            url,
+            headers=headers,
+            data=data,
+            cookies=self._cookies,
+        )
+
+        # Has no auth token.
+        if response.status_code == 401:
+            return response.json()
+
+        # Post id doesn't exist.
+        if response.status_code == 404:
+            return response.json()
+
+        if response.status_code == 201:
+            return {
+                "code": response.status_code,
+                "message": "Post created",
+                "data": response.json(),
+            }
+
+        # Handle any other unknown status code.
+        return response.json()
+
+    def edit_post(self, post_id, message):
+        if not message:
+            return {"code": 400, "message": '"message" is not allowed to be empty'}
+
+        url = f"{API_URL}/{API_VERSION}/posts/{post_id}"
+        headers = {
+            "User-Agent": USER_AGENT,
+            "content-type": "application/x-www-form-urlencoded",
+        }
+        data = {"body": message}
+        response = requests.patch(
+            url,
+            headers=headers,
+            data=data,
+            cookies=self._cookies,
+        )
+
+        # Has no auth token.
+        if response.status_code == 401:
+            return response.json()
+
+        # Post id doesn't exist.
+        if response.status_code == 404:
+            return response.json()
+
+        if response.status_code == 200:
+            return {
+                "code": response.status_code,
+                "message": "Post updated",
+                "data": response.json(),
+            }
+
+        # Handle any other unknown status code.
+        return response.json()

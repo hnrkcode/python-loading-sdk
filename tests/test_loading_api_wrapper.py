@@ -1574,9 +1574,22 @@ class TestLoadingApiWrapper(unittest.TestCase):
         mock_requests.patch.return_value = mock_response
         mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
+        # Edit post.
         api = LoadingApiWrapper("test@email.com", "password")
         response = api.edit_post(
             post_id="000000000000000000000000",
+            message="updated message",
+        )
+
+        self.assertIsNotNone(api._cookies)
+        self.assertEqual(api._cookies, self.cookie_jar)
+        self.assertEqual(response.get("code"), 200)
+        self.assertDictEqual(response.get("data"), expected_response)
+
+        # Edit thread.
+        api = LoadingApiWrapper("test@email.com", "password")
+        response = api.edit_thread(
+            thread_id="000000000000000000000000",
             message="updated message",
         )
 
@@ -1595,8 +1608,18 @@ class TestLoadingApiWrapper(unittest.TestCase):
         mock_response.json.return_value = expected_response
         mock_requests.patch.return_value = mock_response
 
+        # Edit post.
         api = LoadingApiWrapper()
         response = api.edit_post(post_id="post_id_to_edit", message="updated message")
+
+        self.assertEqual(response, expected_response)
+
+        # Edit thread.
+        api = LoadingApiWrapper()
+        response = api.edit_thread(
+            thread_id="thread_id_to_edit",
+            message="updated message",
+        )
 
         self.assertEqual(response, expected_response)
 
@@ -1610,9 +1633,20 @@ class TestLoadingApiWrapper(unittest.TestCase):
         mock_response.json.return_value = expected_response
         mock_requests.patch.return_value = mock_response
 
+        # Edit post.
         api = LoadingApiWrapper()
         response = api.edit_post(
-            post_id="non_existing_post_id", message="new updated message"
+            post_id="non_existing_post_id",
+            message="new updated message",
+        )
+
+        self.assertEqual(response, expected_response)
+
+        # Edit thread.
+        api = LoadingApiWrapper()
+        response = api.edit_thread(
+            thread_id="non_existing_thread_id",
+            message="new updated message",
         )
 
         self.assertEqual(response, expected_response)
@@ -1626,8 +1660,17 @@ class TestLoadingApiWrapper(unittest.TestCase):
 
         mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
+        # Edit post.
         api = LoadingApiWrapper("test@email.com", "password")
         response = api.edit_post(post_id="existing_post_id", message="")
+
+        self.assertIsNotNone(api._cookies)
+        self.assertEqual(api._cookies, self.cookie_jar)
+        self.assertEqual(response, expected_response)
+
+        # Edit thread.
+        api = LoadingApiWrapper("test@email.com", "password")
+        response = api.edit_thread(thread_id="existing_thread_id", message="")
 
         self.assertIsNotNone(api._cookies)
         self.assertEqual(api._cookies, self.cookie_jar)

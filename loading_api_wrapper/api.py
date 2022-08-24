@@ -273,3 +273,9 @@ class LoadingApiWrapper:
 
         # Handle any other unknown status code.
         return response.json()
+
+    def create_thread(self, title, text, category, post_type):
+        pass
+
+    def edit_thread(self, thread_id, message):
+        return self.edit_post(thread_id, message)

@@ -1550,3 +1550,174 @@ class TestLoadingApiWrapper(unittest.TestCase):
         )
 
         self.assertDictEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.LoadingApiWrapper._authenticate")
+    @patch("loading_api_wrapper.api.requests")
+    def test_edit_post_success(self, mock_requests, mock_authenticate):
+        status_code = 200
+        expected_response = {
+            "id": "000000000000000000000000",
+            "body": "updated message",
+            "postType": "regular",
+            "createdAt": "2022-01-01T00:00:00.000Z",
+            "updatedAt": "2022-01-02T00:00:00.000Z",
+            "parentId": "222222222222222222222222",
+            "userId": "111111111111111111111111",
+            "replies": 0,
+            "edits": 1,
+            "lastEdit": "2022-01-02T00:00:00.000Z",
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.patch.return_value = mock_response
+        mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
+
+        api = LoadingApiWrapper("test@email.com", "password")
+        response = api.edit_post(
+            post_id="000000000000000000000000",
+            message="updated message",
+        )
+
+        self.assertIsNotNone(api._cookies)
+        self.assertEqual(api._cookies, self.cookie_jar)
+        self.assertEqual(response.get("code"), 200)
+        self.assertDictEqual(response.get("data"), expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_edit_post_failure_no_auth_token(self, mock_requests):
+        status_code = 401
+        expected_response = {"code": status_code, "message": "No auth token"}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.patch.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.edit_post(post_id="post_id_to_edit", message="updated message")
+
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_edit_post_failure_post_does_not_exist(self, mock_requests):
+        status_code = 404
+        expected_response = {"code": status_code, "message": "Post does not exist"}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.patch.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.edit_post(
+            post_id="non_existing_post_id", message="new updated message"
+        )
+
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.LoadingApiWrapper._authenticate")
+    def test_edit_post_failure_empty_thread_id(self, mock_authenticate):
+        expected_response = {
+            "code": 400,
+            "message": '"message" is not allowed to be empty',
+        }
+
+        mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
+
+        api = LoadingApiWrapper("test@email.com", "password")
+        response = api.edit_post(post_id="existing_post_id", message="")
+
+        self.assertIsNotNone(api._cookies)
+        self.assertEqual(api._cookies, self.cookie_jar)
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.LoadingApiWrapper._authenticate")
+    def test_create_post_failure_empty_thread_id(self, mock_authenticate):
+        expected_response = {
+            "code": 400,
+            "message": '"thread_id" is not allowed to be empty',
+        }
+
+        mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
+
+        api = LoadingApiWrapper("test@email.com", "password")
+        response = api.create_post(thread_id="", message="New message")
+
+        self.assertIsNotNone(api._cookies)
+        self.assertEqual(api._cookies, self.cookie_jar)
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.LoadingApiWrapper._authenticate")
+    @patch("loading_api_wrapper.api.requests")
+    def test_create_post_failure_thread_id_does_not_exist(
+        self, mock_requests, mock_authenticate
+    ):
+        status_code = 404
+        expected_response = {"code": status_code, "message": "Post does not exist"}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.post.return_value = mock_response
+        mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
+
+        api = LoadingApiWrapper("test@email.com", "password")
+        response = api.create_post(
+            thread_id="non_existing_thread_id",
+            message="New message",
+        )
+
+        self.assertIsNotNone(api._cookies)
+        self.assertEqual(api._cookies, self.cookie_jar)
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.requests")
+    def test_create_post_failure_no_auth_token(self, mock_requests):
+        status_code = 401
+        expected_response = {"code": status_code, "message": "No auth token"}
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.post.return_value = mock_response
+
+        api = LoadingApiWrapper()
+        response = api.create_post(
+            thread_id="existing_thread_id", message="New message"
+        )
+
+        self.assertEqual(response, expected_response)
+
+    @patch("loading_api_wrapper.api.LoadingApiWrapper._authenticate")
+    @patch("loading_api_wrapper.api.requests")
+    def test_create_post_success(self, mock_requests, mock_authenticate):
+        status_code = 201
+        expected_response = {
+            "id": "000000000000000000000000",
+            "body": "New message!",
+            "postType": "regular",
+            "createdAt": "2022-01-01T00:00:00.000Z",
+            "updatedAt": "2022-01-02T00:00:00.000Z",
+            "parentId": "111111111111111111111111",
+            "userId": "222222222222222222222222",
+            "replies": 0,
+        }
+
+        mock_response = MagicMock()
+        mock_response.status_code = status_code
+        mock_response.json.return_value = expected_response
+        mock_requests.post.return_value = mock_response
+        mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
+
+        api = LoadingApiWrapper("test@email.com", "password")
+        response = api.create_post(
+            thread_id="111111111111111111111111",
+            message="New message!",
+        )
+
+        self.assertIsNotNone(api._cookies)
+        self.assertEqual(api._cookies, self.cookie_jar)
+        self.assertEqual(response.get("code"), 201)
+        self.assertEqual(response.get("data"), expected_response)

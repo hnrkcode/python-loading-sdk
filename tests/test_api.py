@@ -151,6 +151,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertIsNotNone(api._cookies)
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "OK")
         self.assertDictEqual(response.get("data"), expected_response)
 
     @patch("loading_sdk.api.requests")
@@ -209,6 +210,7 @@ class TestLoadingApiClient(unittest.TestCase):
         response = api.search("zGwszApFEcY")
 
         self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
     @patch("loading_sdk.api.requests")
@@ -224,6 +226,7 @@ class TestLoadingApiClient(unittest.TestCase):
         response = api.search("zGwszApFEcYesf")
 
         self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "No results")
         self.assertEqual(response.get("data"), expected_response)
 
     @patch("loading_sdk.api.requests")
@@ -327,6 +330,7 @@ class TestLoadingApiClient(unittest.TestCase):
         response = api.get_post("none_existing_post_id")
 
         self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
     @patch("loading_sdk.api.requests")
@@ -369,18 +373,21 @@ class TestLoadingApiClient(unittest.TestCase):
         response = api.get_thread("5f9e4e8c2c32e2001ed17170")
 
         self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
         api = LoadingApiClient()
         response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=0)
 
         self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
         api = LoadingApiClient()
         response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=1)
 
         self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
     @patch("loading_sdk.api.requests")
@@ -464,7 +471,11 @@ class TestLoadingApiClient(unittest.TestCase):
     @patch("loading_sdk.api.requests")
     def test_get_thread_failure_page_too_low(self, mock_requests):
         status_code = 200
-        expected_response = {"code": 200, "data": {"posts": [], "users": []}}
+        expected_response = {
+            "code": 200,
+            "message": "Page number too low",
+            "data": {"posts": [], "users": []},
+        }
 
         mock_response = MagicMock()
         mock_response.status_code = status_code
@@ -506,7 +517,11 @@ class TestLoadingApiClient(unittest.TestCase):
     @patch("loading_sdk.api.requests")
     def test_get_thread_failure_page_too_high(self, mock_requests):
         status_code = 200
-        expected_response = {"code": 200, "data": {"posts": [], "users": []}}
+        expected_response = {
+            "code": 200,
+            "message": "Page number too high",
+            "data": {"posts": [], "users": []},
+        }
 
         mock_response = MagicMock()
         mock_response.status_code = status_code
@@ -543,6 +558,7 @@ class TestLoadingApiClient(unittest.TestCase):
         response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=2)
 
         self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "Page number too high")
         self.assertEqual(response, expected_response)
 
     @patch("loading_sdk.api.requests")
@@ -932,7 +948,11 @@ class TestLoadingApiClient(unittest.TestCase):
     @patch("loading_sdk.api.requests")
     def test_get_games_failure_page_too_low(self, mock_requests):
         status_code = 404
-        expected_response = {"code": status_code, "data": {"posts": [], "users": []}}
+        expected_response = {
+            "code": status_code,
+            "message": "Page number too low",
+            "data": {"posts": [], "users": []},
+        }
 
         mock_response = MagicMock()
         mock_response.status_code = status_code
@@ -947,7 +967,11 @@ class TestLoadingApiClient(unittest.TestCase):
     @patch("loading_sdk.api.requests")
     def test_get_games_failure_page_too_high(self, mock_requests):
         status_code = 404
-        expected_response = {"code": status_code, "data": {"posts": [], "users": []}}
+        expected_response = {
+            "code": status_code,
+            "message": "Page number too high",
+            "data": {"posts": [], "users": []},
+        }
 
         mock_response = MagicMock()
         mock_response.status_code = status_code
@@ -1180,7 +1204,11 @@ class TestLoadingApiClient(unittest.TestCase):
     @patch("loading_sdk.api.requests")
     def test_get_other_failure_page_too_low(self, mock_requests):
         status_code = 404
-        expected_response = {"code": status_code, "data": {"posts": [], "users": []}}
+        expected_response = {
+            "code": status_code,
+            "message": "Page number too low",
+            "data": {"posts": [], "users": []},
+        }
 
         mock_response = MagicMock()
         mock_response.status_code = status_code
@@ -1195,7 +1223,11 @@ class TestLoadingApiClient(unittest.TestCase):
     @patch("loading_sdk.api.requests")
     def test_get_other_failure_page_too_high(self, mock_requests):
         status_code = 404
-        expected_response = {"code": status_code, "data": {"posts": [], "users": []}}
+        expected_response = {
+            "code": status_code,
+            "message": "Page number too high",
+            "data": {"posts": [], "users": []},
+        }
 
         mock_response = MagicMock()
         mock_response.status_code = status_code
@@ -1505,6 +1537,8 @@ class TestLoadingApiClient(unittest.TestCase):
         api = LoadingApiClient()
         response = api.get_editorials(page=1, post_type="update", sort="title")
 
+        self.assertEqual(response.get("code"), 200)
+        self.assertEqual(response.get("message"), "OK")
         self.assertDictEqual(response.get("data"), expected_response)
 
         threads = response.get("data").get("posts")
@@ -1515,7 +1549,11 @@ class TestLoadingApiClient(unittest.TestCase):
     @patch("loading_sdk.api.requests")
     def test_get_editorials_failure_page_too_low(self, mock_requests):
         status_code = 404
-        expected_response = {"code": status_code, "data": {"posts": [], "users": []}}
+        expected_response = {
+            "code": status_code,
+            "message": "Page number too low",
+            "data": {"posts": [], "users": []},
+        }
 
         mock_response = MagicMock()
         mock_response.status_code = status_code
@@ -1534,7 +1572,11 @@ class TestLoadingApiClient(unittest.TestCase):
     @patch("loading_sdk.api.requests")
     def test_get_editorials_failure_page_too_high(self, mock_requests):
         status_code = 404
-        expected_response = {"code": status_code, "data": {"posts": [], "users": []}}
+        expected_response = {
+            "code": status_code,
+            "message": "Page number too high",
+            "data": {"posts": [], "users": []},
+        }
 
         mock_response = MagicMock()
         mock_response.status_code = status_code

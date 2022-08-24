@@ -48,16 +48,20 @@ class LoadingApiClient:
 
         # Doing this checks to make sure it only return data from a page that exists.
         if page and page < 1:
-            return {"code": 404, "data": {"posts": [], "users": []}}
+            return {
+                "code": 404,
+                "message": "Page number too low",
+                "data": {"posts": [], "users": []},
+            }
 
         response = requests.get(url, headers=headers)
         data = response.json()
 
         # Page out of range.
         if not len(data["posts"]):
-            return {"code": 404, "data": data}
+            return {"code": 404, "message": "Page number too high", "data": data}
 
-        return {"code": 200, "data": data}
+        return {"code": 200, "message": "OK", "data": data}
 
     def get_profile(self):
         url = f"{API_URL}/{API_VERSION}/users/profile"
@@ -69,6 +73,7 @@ class LoadingApiClient:
         if response.status_code == 200:
             return {
                 "code": response.status_code,
+                "message": "OK",
                 "data": response.json(),
             }
 
@@ -81,14 +86,16 @@ class LoadingApiClient:
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
         }
         response = requests.post(url, headers=headers, data={"query": query})
+        data = response.json()
 
         if response.status_code == 200:
             return {
                 "code": response.status_code,
-                "data": response.json(),
+                "message": "OK" if len(data["posts"]) else "No results",
+                "data": data,
             }
 
-        return response.json()
+        return data
 
     def get_post(self, post_id):
         if not post_id:
@@ -104,6 +111,7 @@ class LoadingApiClient:
         if response.status_code == 200:
             return {
                 "code": response.status_code,
+                "message": "OK",
                 "data": response.json(),
             }
 
@@ -145,13 +153,24 @@ class LoadingApiClient:
                 pages = 1
 
             # Page is out of range.
-            if page < 1 or page > pages:
+            if page < 1:
                 return {
                     "code": response.status_code,
+                    "message": "Page number too low",
+                    "data": {"posts": [], "users": []},
+                }
+            elif page > pages:
+                return {
+                    "code": response.status_code,
+                    "message": "Page number too high",
                     "data": {"posts": [], "users": []},
                 }
 
-        successful_response = {"code": response.status_code, "data": data}
+        successful_response = {
+            "code": response.status_code,
+            "message": "OK",
+            "data": data,
+        }
 
         return successful_response
 
@@ -187,16 +206,20 @@ class LoadingApiClient:
 
         # Doing this checks to make sure it only return data from a page that exists.
         if page and page < 1:
-            return {"code": 404, "data": {"posts": [], "users": []}}
+            return {
+                "code": 404,
+                "message": "Page number too low",
+                "data": {"posts": [], "users": []},
+            }
 
         response = requests.get(url, headers=headers)
         data = response.json()
 
         # Page out of range.
         if not len(data["posts"]):
-            return {"code": 404, "data": data}
+            return {"code": 404, "message": "Page number too high", "data": data}
 
-        return {"code": 200, "data": data}
+        return {"code": 200, "message": "OK", "data": data}
 
     def create_post(self, thread_id, message):
         if not thread_id:

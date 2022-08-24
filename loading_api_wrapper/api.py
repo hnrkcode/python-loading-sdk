@@ -1,6 +1,4 @@
-from concurrent.futures import thread
 import math
-from pydoc import resolve
 
 import requests
 

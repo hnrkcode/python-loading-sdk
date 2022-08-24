@@ -48,16 +48,16 @@ class LoadingApiClient:
 
         # Doing this checks to make sure it only return data from a page that exists.
         if page and page < 1:
-            return {"code": 404, "post": {"posts": [], "users": []}}
+            return {"code": 404, "data": {"posts": [], "users": []}}
 
         response = requests.get(url, headers=headers)
         data = response.json()
 
         # Page out of range.
         if not len(data["posts"]):
-            return {"code": 404, "post": data}
+            return {"code": 404, "data": data}
 
-        return {"code": 200, "post": data}
+        return {"code": 200, "data": data}
 
     def get_profile(self):
         url = f"{API_URL}/{API_VERSION}/users/profile"
@@ -69,7 +69,7 @@ class LoadingApiClient:
         if response.status_code == 200:
             return {
                 "code": response.status_code,
-                "profile": response.json(),
+                "data": response.json(),
             }
 
         return response.json()
@@ -85,7 +85,7 @@ class LoadingApiClient:
         if response.status_code == 200:
             return {
                 "code": response.status_code,
-                "search_results": response.json(),
+                "data": response.json(),
             }
 
         return response.json()
@@ -104,7 +104,7 @@ class LoadingApiClient:
         if response.status_code == 200:
             return {
                 "code": response.status_code,
-                "post": response.json(),
+                "data": response.json(),
             }
 
         return response.json()
@@ -148,10 +148,10 @@ class LoadingApiClient:
             if page < 1 or page > pages:
                 return {
                     "code": response.status_code,
-                    "post": {"posts": [], "users": []},
+                    "data": {"posts": [], "users": []},
                 }
 
-        successful_response = {"code": response.status_code, "post": data}
+        successful_response = {"code": response.status_code, "data": data}
 
         return successful_response
 
@@ -187,16 +187,16 @@ class LoadingApiClient:
 
         # Doing this checks to make sure it only return data from a page that exists.
         if page and page < 1:
-            return {"code": 404, "post": {"posts": [], "users": []}}
+            return {"code": 404, "data": {"posts": [], "users": []}}
 
         response = requests.get(url, headers=headers)
         data = response.json()
 
         # Page out of range.
         if not len(data["posts"]):
-            return {"code": 404, "post": data}
+            return {"code": 404, "data": data}
 
-        return {"code": 200, "post": data}
+        return {"code": 200, "data": data}
 
     def create_post(self, thread_id, message):
         if not thread_id:

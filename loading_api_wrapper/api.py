@@ -13,7 +13,6 @@ EDITORIAL_POST_TYPES = [
     "podcast",
     "conversation",
 ]
-
 EDITORIAL_SORT = ["title"]
 
 
@@ -274,8 +273,51 @@ class LoadingApiWrapper:
         # Handle any other unknown status code.
         return response.json()
 
-    def create_thread(self, title, text, category, post_type):
-        pass
+    def create_thread(self, title, message, category_name, post_type=None):
+        if category_name not in ["games", "other"]:
+            return {"code": 400, "message": "Invalid forum category"}
+
+        if post_type and post_type not in EDITORIAL_POST_TYPES:
+            return {"code": 400, "message": "Invalid post_type"}
+
+        if not post_type:
+            post_type = "regular"
+
+        url = f"{API_URL}/{API_VERSION}/posts/"
+        headers = {
+            "User-Agent": USER_AGENT,
+            "content-type": "application/x-www-form-urlencoded",
+        }
+        data = {
+            "category": category_name,
+            "postType": post_type,
+            "title": title,
+            "body": message,
+        }
+        response = requests.post(url, headers=headers, data=data, cookies=self._cookies)
+
+        # Validation errors. Happens when title or message is empty. Possibly in other cases too.
+        if response.status_code == 400:
+            return response.json()
+
+        # No auth token.
+        if response.status_code == 401:
+            return response.json()
+
+        if response.status_code == 201:
+            return {
+                "code": response.status_code,
+                "message": "Thread created",
+                "data": response.json(),
+            }
+
+        # Handle any other unknown status code.
+        return response.json()
 
     def edit_thread(self, thread_id, message):
-        return self.edit_post(thread_id, message)
+        thread_data = self.edit_post(thread_id, message)
+
+        if thread_data["code"] == 200:
+            thread_data["message"] = "Thread updated"
+
+        return thread_data

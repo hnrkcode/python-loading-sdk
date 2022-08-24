@@ -2,7 +2,7 @@ import math
 
 import requests
 
-from loading_api_wrapper.settings import (
+from loading_sdk.settings import (
     API_URL,
     API_VERSION,
     EDITORIAL_POST_TYPES,
@@ -11,7 +11,7 @@ from loading_api_wrapper.settings import (
 )
 
 
-class LoadingApiWrapper:
+class LoadingApiClient:
     def __init__(self, email=None, password=None):
         self._cookies = None
 

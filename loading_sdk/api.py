@@ -159,7 +159,8 @@ class LoadingApiClient:
                     "message": "Page number too low",
                     "data": {"posts": [], "users": []},
                 }
-            elif page > pages:
+
+            if page > pages:
                 return {
                     "code": response.status_code,
                     "message": "Page number too high",

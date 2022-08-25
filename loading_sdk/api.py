@@ -58,7 +58,7 @@ class LoadingApiClient:
         data = response.json()
 
         # Page out of range.
-        if not len(data["posts"]):
+        if not data["posts"]:
             return {"code": 404, "message": "Page number too high", "data": data}
 
         return {"code": 200, "message": "OK", "data": data}
@@ -217,7 +217,7 @@ class LoadingApiClient:
         data = response.json()
 
         # Page out of range.
-        if not len(data["posts"]):
+        if not data["posts"]:
             return {"code": 404, "message": "Page number too high", "data": data}
 
         return {"code": 200, "message": "OK", "data": data}

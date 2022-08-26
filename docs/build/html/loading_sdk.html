@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>loading_sdk package &mdash; python-loading-sdk 0.1.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="loading_sdk" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> python-loading-sdk
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">loading_sdk</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">loading_sdk package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-loading_sdk.api">loading_sdk.api module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-loading_sdk">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-loading-sdk</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">loading_sdk</a> &raquo;</li>
+      <li>loading_sdk package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/loading_sdk.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="loading-sdk-package">
+<h1>loading_sdk package<a class="headerlink" href="#loading-sdk-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-loading_sdk.api">
+<span id="loading-sdk-api-module"></span><h2>loading_sdk.api module<a class="headerlink" href="#module-loading_sdk.api" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">loading_sdk.api.</span></span><span class="sig-name descname"><span class="pre">LoadingApiClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A client that allows python apps to easily communicate with the loading forums web api.</p>
+<p>Some methods can be used anonymously, while others require the client to be authenticated
+with user credentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> (<em>str</em>) – users email address (<strong>optional</strong>)</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – users password (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.create_post">
+<span class="sig-name descname"><span class="pre">create_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.create_post" title="Permalink to this definition"></a></dt>
+<dd><p>Create new post in a thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – Unique thread id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Text that can be formatted with markdown that will be posted in the thread</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.create_thread">
+<span class="sig-name descname"><span class="pre">create_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.create_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Create new thread in one of the forum categories</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>title</strong> (<em>str</em>) – Thread title</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Thread body that can be formatted with markdown</p></li>
+<li><p><strong>category_name</strong> (<em>str</em>) – Forum category. Can be either “games” or “other”.</p></li>
+<li><p><strong>post_type</strong> – Creates a “regular” thread by the default. (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.edit_post">
+<span class="sig-name descname"><span class="pre">edit_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.edit_post" title="Permalink to this definition"></a></dt>
+<dd><p>Edit existing post in a thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>post_id</strong> (<em>str</em>) – Unique post id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – New text, that can be formatted with markdown, that will replace the old message</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.edit_thread">
+<span class="sig-name descname"><span class="pre">edit_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.edit_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Edit existing thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – Unique thread id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – New text, that can be formatted with markdown, that will replace the old message</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.get_editorials">
+<span class="sig-name descname"><span class="pre">get_editorials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.get_editorials" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the texts category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>page</strong> (<em>int</em>) – Texts forum page (<strong>optional</strong>)</p></li>
+<li><p><strong>post_type</strong> (<em>str</em>) – Articles can be of post_type: “review”, “opinion”, “update”, “podcast”, or “conversation” (<strong>optional</strong>)</p></li>
+<li><p><strong>sort</strong> (<em>str</em>) – Sort the returned threads by date by the default, but if “title” is used as a parameter it’s sorted by thread title instead. (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.get_games">
+<span class="sig-name descname"><span class="pre">get_games</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.get_games" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the game category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>page</strong> (<em>int</em>) – Game forum page</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.get_other">
+<span class="sig-name descname"><span class="pre">get_other</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.get_other" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the other category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>page</strong> (<em>int</em>) – Other forum page</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.get_post">
+<span class="sig-name descname"><span class="pre">get_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.get_post" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a specific post</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>post_id</strong> (<em>str</em>) – unique post id</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.get_profile">
+<span class="sig-name descname"><span class="pre">get_profile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.get_profile" title="Permalink to this definition"></a></dt>
+<dd><p>Returns authenticated users profile data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.get_thread">
+<span class="sig-name descname"><span class="pre">get_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.get_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Returns all posts on a specific page from a specific thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – unique thread_id</p></li>
+<li><p><strong>page</strong> (<em>int</em>) – thread page (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.api.LoadingApiClient.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.api.LoadingApiClient.search" title="Permalink to this definition"></a></dt>
+<dd><p>Returns posts that matches the query</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>query</strong> (<em>str</em>) – Search query</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-loading_sdk">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-loading_sdk" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">loading_sdk.</span></span><span class="sig-name descname"><span class="pre">LoadingApiClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A client that allows python apps to easily communicate with the loading forums web api.</p>
+<p>Some methods can be used anonymously, while others require the client to be authenticated
+with user credentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> (<em>str</em>) – users email address (<strong>optional</strong>)</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – users password (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.create_post">
+<span class="sig-name descname"><span class="pre">create_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.create_post" title="Permalink to this definition"></a></dt>
+<dd><p>Create new post in a thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – Unique thread id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Text that can be formatted with markdown that will be posted in the thread</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.create_thread">
+<span class="sig-name descname"><span class="pre">create_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.create_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Create new thread in one of the forum categories</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>title</strong> (<em>str</em>) – Thread title</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Thread body that can be formatted with markdown</p></li>
+<li><p><strong>category_name</strong> (<em>str</em>) – Forum category. Can be either “games” or “other”.</p></li>
+<li><p><strong>post_type</strong> – Creates a “regular” thread by the default. (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.edit_post">
+<span class="sig-name descname"><span class="pre">edit_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.edit_post" title="Permalink to this definition"></a></dt>
+<dd><p>Edit existing post in a thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>post_id</strong> (<em>str</em>) – Unique post id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – New text, that can be formatted with markdown, that will replace the old message</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.edit_thread">
+<span class="sig-name descname"><span class="pre">edit_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.edit_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Edit existing thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – Unique thread id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – New text, that can be formatted with markdown, that will replace the old message</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.get_editorials">
+<span class="sig-name descname"><span class="pre">get_editorials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.get_editorials" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the texts category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>page</strong> (<em>int</em>) – Texts forum page (<strong>optional</strong>)</p></li>
+<li><p><strong>post_type</strong> (<em>str</em>) – Articles can be of post_type: “review”, “opinion”, “update”, “podcast”, or “conversation” (<strong>optional</strong>)</p></li>
+<li><p><strong>sort</strong> (<em>str</em>) – Sort the returned threads by date by the default, but if “title” is used as a parameter it’s sorted by thread title instead. (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.get_games">
+<span class="sig-name descname"><span class="pre">get_games</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.get_games" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the game category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>page</strong> (<em>int</em>) – Game forum page</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.get_other">
+<span class="sig-name descname"><span class="pre">get_other</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.get_other" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the other category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>page</strong> (<em>int</em>) – Other forum page</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.get_post">
+<span class="sig-name descname"><span class="pre">get_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.get_post" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a specific post</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>post_id</strong> (<em>str</em>) – unique post id</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.get_profile">
+<span class="sig-name descname"><span class="pre">get_profile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.get_profile" title="Permalink to this definition"></a></dt>
+<dd><p>Returns authenticated users profile data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.get_thread">
+<span class="sig-name descname"><span class="pre">get_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.get_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Returns all posts on a specific page from a specific thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – unique thread_id</p></li>
+<li><p><strong>page</strong> (<em>int</em>) – thread page (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.search">
+<span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.search" title="Permalink to this definition"></a></dt>
+<dd><p>Returns posts that matches the query</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>query</strong> (<em>str</em>) – Search query</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modules.html" class="btn btn-neutral float-left" title="loading_sdk" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, hnrkcode.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

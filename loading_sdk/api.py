@@ -42,7 +42,7 @@ class LoadingApiClient:
             "email": email,
             "password": password,
         }
-        response = requests.post(url, headers=headers, data=data)
+        response = requests.post(url, headers=headers, data=data, timeout=10)
 
         if response.status_code == 200:
             return {"code": 200, "cookies": response.cookies}
@@ -65,7 +65,7 @@ class LoadingApiClient:
                 "data": {"posts": [], "users": []},
             }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
         data = response.json()
 
         # Page out of range.
@@ -84,7 +84,7 @@ class LoadingApiClient:
         headers = {
             "User-Agent": USER_AGENT,
         }
-        response = requests.get(url, headers=headers, cookies=self._cookies)
+        response = requests.get(url, headers=headers, cookies=self._cookies, timeout=10)
 
         if response.status_code == 200:
             return {
@@ -108,7 +108,12 @@ class LoadingApiClient:
             "User-Agent": USER_AGENT,
             "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
         }
-        response = requests.post(url, headers=headers, data={"query": query})
+        response = requests.post(
+            url,
+            headers=headers,
+            data={"query": query},
+            timeout=10,
+        )
         data = response.json()
 
         if response.status_code == 200:
@@ -136,7 +141,7 @@ class LoadingApiClient:
             "User-Agent": USER_AGENT,
         }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
 
         if response.status_code == 200:
             return {
@@ -167,7 +172,7 @@ class LoadingApiClient:
         if page and page > 1:
             headers["page"] = str(page)
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
 
         if response.status_code != 200:
             return response.json()
@@ -277,7 +282,7 @@ class LoadingApiClient:
                 "data": {"posts": [], "users": []},
             }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=10)
         data = response.json()
 
         # Page out of range.
@@ -310,6 +315,7 @@ class LoadingApiClient:
             headers=headers,
             data=data,
             cookies=self._cookies,
+            timeout=10,
         )
 
         # Has no auth token.
@@ -354,6 +360,7 @@ class LoadingApiClient:
             headers=headers,
             data=data,
             cookies=self._cookies,
+            timeout=10,
         )
 
         # Has no auth token.
@@ -406,7 +413,13 @@ class LoadingApiClient:
             "title": title,
             "body": message,
         }
-        response = requests.post(url, headers=headers, data=data, cookies=self._cookies)
+        response = requests.post(
+            url,
+            headers=headers,
+            data=data,
+            cookies=self._cookies,
+            timeout=10,
+        )
 
         # Validation errors. Happens when title or message is empty. Possibly in other cases too.
         if response.status_code == 400:

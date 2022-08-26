@@ -1,5 +1,16 @@
 # Python Loading SDK
 
+[![PyPI Version][pypi-image]][pypi-url]
+[![][versions-image]][versions-url]
+[![Build Status][build-image]][build-url]
+
+[pypi-image]: https://img.shields.io/pypi/v/python-loading-sdk
+[pypi-url]: https://pypi.org/project/python-loading-sdk/
+[versions-image]: https://img.shields.io/pypi/pyversions/python-loading-sdk
+[versions-url]: https://pypi.org/project/python-loading-sdk/
+[build-image]: https://github.com/hnrkcode/python-loading-sdk/actions/workflows/build.yaml/badge.svg
+[build-url]: https://github.com/hnrkcode/python-loading-sdk/actions/workflows/build.yaml
+
 ## How to install
 
 ```

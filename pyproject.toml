@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Python api wrapper for loading.se"
 authors = ["hnrkcode <44243358+hnrkcode@users.noreply.github.com>"]
 packages = [
+    { include = "loading_sdk" },
+    { include = "loading_sdk/**/*.py" },
     { include = "tests" },
     { include = "tests/**/*.py" },
 ]

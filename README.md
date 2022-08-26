@@ -1,5 +1,11 @@
 # Python Loading SDK
 
+## How to install
+
+```
+pip install python-loading-sdk
+```
+
 ## Usage Examples
 
 Instantiate the client and optionally provide login credentials to be able to use methods that requires the user to be logged in.

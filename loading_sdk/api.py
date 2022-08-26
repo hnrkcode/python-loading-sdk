@@ -12,6 +12,17 @@ from loading_sdk.settings import (
 
 
 class LoadingApiClient:
+    """A client that allows python apps to easily communicate with the loading forums web api.
+
+    Some methods can be used anonymously, while others require the client to be authenticated
+    with user credentials.
+    
+    :param email: users email address (**optional**)
+    :type email: str
+    :param password: users password (**optional**)
+    :type password: str
+    """
+
     def __init__(self, email=None, password=None):
         self._cookies = None
 
@@ -64,6 +75,11 @@ class LoadingApiClient:
         return {"code": 200, "message": "OK", "data": data}
 
     def get_profile(self):
+        """Returns authenticated users profile data
+
+        :rtype: dict
+        """
+
         url = f"{API_URL}/{API_VERSION}/users/profile"
         headers = {
             "User-Agent": USER_AGENT,
@@ -80,6 +96,13 @@ class LoadingApiClient:
         return response.json()
 
     def search(self, query):
+        """Returns posts that matches the query
+
+        :param query: Search query
+        :type query: str
+        :rtype: dict
+        """
+
         url = f"{API_URL}/{API_VERSION}/search/"
         headers = {
             "User-Agent": USER_AGENT,
@@ -98,6 +121,13 @@ class LoadingApiClient:
         return data
 
     def get_post(self, post_id):
+        """Returns a specific post
+
+        :param post_id: unique post id
+        :type post_id: str
+        :rtype: dict
+        """
+
         if not post_id:
             return {"code": 404, "message": '"post_id" is not allowed to be empty'}
 
@@ -118,7 +148,14 @@ class LoadingApiClient:
         return response.json()
 
     def get_thread(self, thread_id, page=None):
-        """Returns post data if the id belongs to a thread start."""
+        """Returns all posts on a specific page from a specific thread
+
+        :param thread_id: unique thread_id
+        :type thread_id: str
+        :param page: thread page (**optional**)
+        :type page: int
+        :rtype: dict
+        """
 
         if not thread_id:
             return {"code": 404, "message": '"thread_id" is not allowed to be empty'}
@@ -176,18 +213,43 @@ class LoadingApiClient:
         return successful_response
 
     def get_games(self, page=None):
+        """Retruns threads from a specific page in the game category
+
+        :param page: Game forum page
+        :type page: int
+        :rtype: dict
+        """
+
         category_name = "games"
         thread_data = self._get_threads_in_forum_category(category_name, page)
 
         return thread_data
 
     def get_other(self, page=None):
+        """Retruns threads from a specific page in the other category
+
+        :param page: Other forum page
+        :type page: int
+        :rtype: dict
+        """
+
         category_name = "other"
         thread_data = self._get_threads_in_forum_category(category_name, page)
 
         return thread_data
 
     def get_editorials(self, page=None, post_type=None, sort=None):
+        """Retruns threads from a specific page in the texts category
+
+        :param page: Texts forum page (**optional**)
+        :type page: int
+        :param post_type: Articles can be of post_type: "review", "opinion", "update", "podcast", or "conversation" (**optional**)
+        :type post_type: str
+        :param sort: Sort the returned threads by date by the default, but if "title" is used as a parameter it's sorted by thread title instead. (**optional**)
+        :type sort: str
+        :rtype: dict
+        """
+
         url = f"{API_URL}/{API_VERSION}/posts/"
         headers = {
             "User-Agent": USER_AGENT,
@@ -223,6 +285,15 @@ class LoadingApiClient:
         return {"code": 200, "message": "OK", "data": data}
 
     def create_post(self, thread_id, message):
+        """Create new post in a thread
+
+        :param thread_id: Unique thread id
+        :type thread_id: str
+        :param message: Text that can be formatted with markdown that will be posted in the thread
+        :type message: str
+        :rtype: dict
+        """
+
         if not thread_id:
             return {"code": 400, "message": '"thread_id" is not allowed to be empty'}
 
@@ -258,6 +329,14 @@ class LoadingApiClient:
         return response.json()
 
     def edit_post(self, post_id, message):
+        """Edit existing post in a thread
+
+        :param post_id: Unique post id
+        :type post_id: str
+        :param message: New text, that can be formatted with markdown, that will replace the old message
+        :type message: str
+        :rtype: dict
+        """
         if not message:
             return {"code": 400, "message": '"message" is not allowed to be empty'}
 
@@ -293,6 +372,17 @@ class LoadingApiClient:
         return response.json()
 
     def create_thread(self, title, message, category_name, post_type=None):
+        """Create new thread in one of the forum categories
+
+        :param title: Thread title
+        :type title: str
+        :param message: Thread body that can be formatted with markdown
+        :type message: str
+        :param category_name: Forum category. Can be either "games" or "other".
+        :type category_name: str
+        :param post_type: Creates a "regular" thread by the default. (**optional**)
+        :rtype: dict
+        """
         if category_name not in ["games", "other"]:
             return {"code": 400, "message": "Invalid forum category"}
 
@@ -334,6 +424,15 @@ class LoadingApiClient:
         return response.json()
 
     def edit_thread(self, thread_id, message):
+        """Edit existing thread
+
+        :param thread_id: Unique thread id
+        :type thread_id: str
+        :param message: New text, that can be formatted with markdown, that will replace the old message
+        :type message: str
+        :rtype: dict
+        """
+
         thread_data = self.edit_post(thread_id, message)
 
         if thread_data["code"] == 200:

@@ -16,7 +16,7 @@ class LoadingApiClient:
 
     Some methods can be used anonymously, while others require the client to be authenticated
     with user credentials.
-    
+
     :param email: users email address (**optional**)
     :type email: str
     :param password: users password (**optional**)
@@ -243,9 +243,11 @@ class LoadingApiClient:
 
         :param page: Texts forum page (**optional**)
         :type page: int
-        :param post_type: Articles can be of post_type: "review", "opinion", "update", "podcast", or "conversation" (**optional**)
+        :param post_type: Articles can be of post_type: "review", "opinion", "update", "podcast",
+            or "conversation" (**optional**)
         :type post_type: str
-        :param sort: Sort the returned threads by date by the default, but if "title" is used as a parameter it's sorted by thread title instead. (**optional**)
+        :param sort: Sort the returned threads by date by the default, but if "title" is used as
+            a parameter it's sorted by thread title instead. (**optional**)
         :type sort: str
         :rtype: dict
         """
@@ -333,7 +335,8 @@ class LoadingApiClient:
 
         :param post_id: Unique post id
         :type post_id: str
-        :param message: New text, that can be formatted with markdown, that will replace the old message
+        :param message: New text, that can be formatted with markdown,
+            that will replace the old message
         :type message: str
         :rtype: dict
         """
@@ -428,7 +431,8 @@ class LoadingApiClient:
 
         :param thread_id: Unique thread id
         :type thread_id: str
-        :param message: New text, that can be formatted with markdown, that will replace the old message
+        :param message: New text, that can be formatted with markdown,
+            that will replace the old message
         :type message: str
         :rtype: dict
         """

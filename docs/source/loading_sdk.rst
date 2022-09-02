@@ -12,6 +12,14 @@ loading\_sdk.api module
    :undoc-members:
    :show-inheritance:
 
+loading\_sdk.async_api module
+-----------------------------
+
+.. automodule:: loading_sdk.async_api
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

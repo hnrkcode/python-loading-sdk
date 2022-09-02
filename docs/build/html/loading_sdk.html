@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>loading_sdk package &mdash; python-loading-sdk 0.1.1 documentation</title>
+  <title>loading_sdk package &mdash; python-loading-sdk 0.2.0 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -43,6 +43,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">loading_sdk package</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-loading_sdk.api">loading_sdk.api module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-loading_sdk.async_api">loading_sdk.async_api module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-loading_sdk">Module contents</a></li>
 </ul>
 </li>
@@ -276,8 +277,214 @@ a parameter it’s sorted by thread title instead. (<strong>optional</strong>)</
 </dd></dl>
 
 </section>
+<section id="module-loading_sdk.async_api">
+<span id="loading-sdk-async-api-module"></span><h2>loading_sdk.async_api module<a class="headerlink" href="#module-loading_sdk.async_api" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">loading_sdk.async_api.</span></span><span class="sig-name descname"><span class="pre">AsyncLoadingApiClient</span></span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An async client that allows python apps to easily communicate with the loading forums web api.</p>
+<p>Some methods can be used anonymously, while others require the client to be authenticated
+with user credentials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>email</strong> (<em>str</em>) – users email address (<strong>optional</strong>)</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – users password (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.create_post">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.create_post" title="Permalink to this definition"></a></dt>
+<dd><p>Create new post in a thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – Unique thread id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Text that can be formatted with markdown that will be posted in the thread</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.create_thread">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.create_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Create new thread in one of the forum categories</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>title</strong> (<em>str</em>) – Thread title</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – Thread body that can be formatted with markdown</p></li>
+<li><p><strong>category_name</strong> (<em>str</em>) – Forum category. Can be either “games” or “other”.</p></li>
+<li><p><strong>post_type</strong> – Creates a “regular” thread by the default. (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.edit_post">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">edit_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.edit_post" title="Permalink to this definition"></a></dt>
+<dd><p>Edit existing post in a thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>post_id</strong> (<em>str</em>) – Unique post id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – New text, that can be formatted with markdown,
+that will replace the old message</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.edit_thread">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">edit_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.edit_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Edit existing thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – Unique thread id</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – New text, that can be formatted with markdown,
+that will replace the old message</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.get_editorials">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_editorials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sort</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.get_editorials" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the texts category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>page</strong> (<em>int</em>) – Texts forum page (<strong>optional</strong>)</p></li>
+<li><p><strong>post_type</strong> (<em>str</em>) – Articles can be of post_type: “review”, “opinion”, “update”, “podcast”,
+or “conversation” (<strong>optional</strong>)</p></li>
+<li><p><strong>sort</strong> (<em>str</em>) – Sort the returned threads by date by the default, but if “title” is used as
+a parameter it’s sorted by thread title instead. (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.get_games">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_games</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.get_games" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the game category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>page</strong> (<em>int</em>) – Game forum page</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.get_other">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_other</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.get_other" title="Permalink to this definition"></a></dt>
+<dd><p>Retruns threads from a specific page in the other category</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>page</strong> (<em>int</em>) – Other forum page</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.get_post">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.get_post" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a specific post</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>post_id</strong> (<em>str</em>) – unique post id</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.get_profile">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_profile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.get_profile" title="Permalink to this definition"></a></dt>
+<dd><p>Returns authenticated users profile data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.get_thread">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_thread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.get_thread" title="Permalink to this definition"></a></dt>
+<dd><p>Returns all posts on a specific page from a specific thread</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>thread_id</strong> (<em>str</em>) – unique thread_id</p></li>
+<li><p><strong>page</strong> (<em>int</em>) – thread page (<strong>optional</strong>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.async_api.AsyncLoadingApiClient.search">
+<em class="property"><span class="pre">async</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.AsyncLoadingApiClient.search" title="Permalink to this definition"></a></dt>
+<dd><p>Returns posts that matches the query</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>query</strong> (<em>str</em>) – Search query</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="loading_sdk.async_api.async_loading_api_client">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">loading_sdk.async_api.</span></span><span class="sig-name descname"><span class="pre">async_loading_api_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.async_api.async_loading_api_client" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
 <section id="module-loading_sdk">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-loading_sdk" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="loading_sdk.AsyncLoadingApiClient">
+<em class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">loading_sdk.</span></span><span class="sig-name descname"><span class="pre">AsyncLoadingApiClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.AsyncLoadingApiClient" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="loading_sdk.LoadingApiClient">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">loading_sdk.</span></span><span class="sig-name descname"><span class="pre">LoadingApiClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">email</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient" title="Permalink to this definition"></a></dt>

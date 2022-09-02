@@ -11,13 +11,13 @@
 [build-image]: https://github.com/hnrkcode/python-loading-sdk/actions/workflows/build.yaml/badge.svg
 [build-url]: https://github.com/hnrkcode/python-loading-sdk/actions/workflows/build.yaml
 
-## How to install
+## Install
 
 ```
 pip install python-loading-sdk
 ```
 
-## Usage Examples
+## Usage
 
 Instantiate the client and optionally provide login credentials to be able to use methods that requires the user to be logged in.
 
@@ -25,7 +25,20 @@ Instantiate the client and optionally provide login credentials to be able to us
 from loading_sdk import LoadingApiClient
 
 client = LoadingApiClient(email="your@email.com", password="your_password")
+
+response = client.get_profile()
 ```
+
+It can also be used asyncrounously usage:
+```python
+from loading_sdk import AsyncLoadingApiClient
+
+client = await AsyncLoadingApiClient(email="your@email.com", password="your_password")
+
+response = await client.get_profile()
+```
+
+## Examples
 
 ### Requires Auth
 

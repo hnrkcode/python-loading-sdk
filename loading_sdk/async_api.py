@@ -18,6 +18,17 @@ async def async_loading_api_client(email=None, password=None):
 
 
 class AsyncLoadingApiClient:
+    """An async client that allows python apps to easily communicate with the loading forums web api.
+
+    Some methods can be used anonymously, while others require the client to be authenticated
+    with user credentials.
+
+    :param email: users email address (**optional**)
+    :type email: str
+    :param password: users password (**optional**)
+    :type password: str
+    """
+
     def __init__(self):
         self._cookies = None
 

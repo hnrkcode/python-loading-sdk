@@ -29,7 +29,7 @@ client = LoadingApiClient(email="your@email.com", password="your_password")
 response = client.get_profile()
 ```
 
-It can also be used asyncrounously usage:
+It can also be used asyncrounously:
 ```python
 from loading_sdk import AsyncLoadingApiClient
 

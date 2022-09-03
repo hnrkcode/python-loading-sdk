@@ -12,7 +12,7 @@ class TestLoadingApiClient(unittest.TestCase):
         cls.cookie_jar.set("jwt", "placeholder_token_1")
         cls.cookie_jar.set("refreshToken", "placeholder_token_2")
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_authenticate_success(self, mock_requests):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -30,7 +30,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response.get("cookies"), self.cookie_jar)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_authenticate_failure_incorrect_email_or_password(self, mock_requests):
         status_code = 401
         expected_response = {
@@ -54,7 +54,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 401)
         self.assertEqual(response.get("message"), "Incorrect email or password")
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_authenticate_failure_invalid_email(self, mock_requests):
         status_code = 400
         expected_response = {
@@ -86,7 +86,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 400)
         self.assertEqual(response.get("message"), "Validation error")
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_authenticate_failure_empty_values(self, mock_requests):
         status_code = 400
         expected_response = {
@@ -127,8 +127,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 400)
         self.assertEqual(response.get("message"), "Validation error")
 
-    @patch("loading_sdk.api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_profile_success(self, mock_requests, mock_authenticate):
         status_code = 200
         expected_response = {
@@ -154,7 +154,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "OK")
         self.assertDictEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_profile_failure(self, mock_requests):
         status_code = 401
         expected_response = {"code": status_code, "message": "No auth token"}
@@ -172,7 +172,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 401)
         self.assertEqual(response.get("message"), "No auth token")
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_search_success(self, mock_requests):
         expected_response = {
             "posts": [
@@ -213,7 +213,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_search_success_no_results(self, mock_requests):
         expected_response = {"posts": [], "users": []}
 
@@ -229,7 +229,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "No results")
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_search_failure_empty_query(self, mock_requests):
         status_code = 400
         expected_response = {
@@ -257,7 +257,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "Validation error")
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_post_failure_empty_post_id(self, mock_requests):
         expected_response = {
             "code": 404,
@@ -277,7 +277,7 @@ class TestLoadingApiClient(unittest.TestCase):
         )
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_post_failure_post_does_not_exist(self, mock_requests):
         expected_response = {"code": 404, "message": "Post does not exist"}
 
@@ -293,7 +293,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "Post does not exist")
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_post_success(self, mock_requests):
         status_code = 200
         expected_response = {
@@ -333,7 +333,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_thread_success(self, mock_requests):
         status_code = 200
         expected_response = {
@@ -390,7 +390,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_thread_failure_empty_thread_id(self, mock_requests):
         status_code = 404
         expected_response = {
@@ -409,7 +409,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 404)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_thread_failure_not_a_thread_id(self, mock_requests):
         status_code = 200
         expected_response = {
@@ -452,7 +452,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_thread_failure_does_not_exist(self, mock_requests):
         status_code = 404
         expected_response = {"code": status_code, "message": "Post does not exist"}
@@ -468,7 +468,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 404)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_thread_failure_page_too_low(self, mock_requests):
         status_code = 200
         expected_response = {
@@ -514,7 +514,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_thread_failure_page_too_high(self, mock_requests):
         status_code = 200
         expected_response = {
@@ -561,7 +561,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "Page number too high")
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_games_success(self, mock_requests):
         status_code = 200
         expected_response = {
@@ -945,7 +945,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertDictEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_games_failure_page_too_low(self, mock_requests):
         status_code = 404
         expected_response = {
@@ -964,7 +964,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_games_failure_page_too_high(self, mock_requests):
         status_code = 404
         expected_response = {
@@ -983,7 +983,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_other_success(self, mock_requests):
         status_code = 200
         expected_response = {
@@ -1201,7 +1201,7 @@ class TestLoadingApiClient(unittest.TestCase):
         for thread in threads:
             self.assertEqual(thread.get("category"), "other")
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_other_failure_page_too_low(self, mock_requests):
         status_code = 404
         expected_response = {
@@ -1220,7 +1220,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_other_failure_page_too_high(self, mock_requests):
         status_code = 404
         expected_response = {
@@ -1239,7 +1239,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_editorials_success(self, mock_requests):
         status_code = 200
         expected_response = {
@@ -1546,7 +1546,7 @@ class TestLoadingApiClient(unittest.TestCase):
         for thread in threads:
             self.assertEqual(thread.get("postType"), "update")
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_editorials_failure_page_too_low(self, mock_requests):
         status_code = 404
         expected_response = {
@@ -1569,7 +1569,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_get_editorials_failure_page_too_high(self, mock_requests):
         status_code = 404
         expected_response = {
@@ -1592,8 +1592,8 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_edit_post_success(self, mock_requests, mock_authenticate):
         status_code = 200
         expected_response = {
@@ -1639,7 +1639,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertDictEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_edit_post_failure_no_auth_token(self, mock_requests):
         status_code = 401
         expected_response = {"code": status_code, "message": "No auth token"}
@@ -1664,7 +1664,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_edit_post_failure_post_does_not_exist(self, mock_requests):
         status_code = 404
         expected_response = {"code": status_code, "message": "Post does not exist"}
@@ -1692,7 +1692,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.LoadingApiClient._authenticate")
+    @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
     def test_edit_post_failure_empty_message(self, mock_authenticate):
         expected_response = {
             "code": 400,
@@ -1717,7 +1717,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.LoadingApiClient._authenticate")
+    @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
     def test_create_post_failure_empty_thread_id(self, mock_authenticate):
         expected_response = {
             "code": 400,
@@ -1733,8 +1733,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_create_post_failure_thread_id_does_not_exist(
         self, mock_requests, mock_authenticate
     ):
@@ -1757,7 +1757,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_create_post_failure_no_auth_token(self, mock_requests):
         status_code = 401
         expected_response = {"code": status_code, "message": "No auth token"}
@@ -1774,8 +1774,8 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_create_post_success(self, mock_requests, mock_authenticate):
         status_code = 201
         expected_response = {
@@ -1806,8 +1806,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 201)
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_create_thread_success(self, mock_requests, mock_authenticate):
         status_code = 201
         expected_response = {
@@ -1864,8 +1864,8 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_create_thread_failure_empty_title_or_message(
         self, mock_requests, mock_authenticate
     ):
@@ -1904,7 +1904,7 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.api.requests")
+    @patch("loading_sdk.sync_api.client.requests")
     def test_create_thread_failure_no_auth_token(self, mock_requests):
         status_code = 401
         expected_response = {"code": status_code, "message": "No auth token"}

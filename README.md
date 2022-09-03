@@ -87,3 +87,7 @@ response = client.get_other(page=7)
 ```python
 response = client.get_editorials(page=2, post_type="review", sort="title")
 ```
+
+```python
+response = client.get_about()
+```

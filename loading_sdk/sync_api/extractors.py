@@ -80,7 +80,24 @@ class AboutExtractor(Extractor):
 
 class SocialsExtractor(Extractor):
     def get_data(self):
-        pass
+        page_source = self.get_source(BASE_URL)
+        main_script_url = self.get_script(page_source)
+        main_script_source = self.get_source(f"{BASE_URL}/{main_script_url}")
+
+        match = re.findall(
+            r"(?:href:\")"
+            + r"(https:\/\/|https:\/\/www.(.*?)\..*?\/.*?)"
+            + r"(?:\",target:\"_blank\",rel:\"noreferrer noopener\",className:)"
+            + r"(?:\"Footer-(?:icon|patreon)\")",
+            main_script_source,
+        )
+
+        if not match:
+            return None
+
+        data = [{"name": social[1], "link": social[0]} for social in match]
+
+        return data
 
 
 class ExtractorFactory(ABC):

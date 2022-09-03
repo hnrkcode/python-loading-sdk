@@ -467,13 +467,7 @@ class LoadingApiClient:
         if not data:
             return {"code": 404, "message": "No data found", "data": None}
 
-        data = {
-            "code": 200,
-            "message": "OK",
-            "data": data,
-        }
-
-        return data
+        return {"code": 200, "message": "OK", "data": data}
 
     def get_socials(self):
         """Get social media links
@@ -483,4 +477,7 @@ class LoadingApiClient:
 
         data = extract_data("socials")
 
-        return data
+        if not data:
+            return {"code": 404, "message": "No results found", "data": None}
+
+        return {"code": 200, "message": "OK", "data": data}

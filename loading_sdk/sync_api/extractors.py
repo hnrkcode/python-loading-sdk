@@ -1,32 +1,30 @@
 import json
 import re
+from abc import ABC, abstractmethod
 
 import requests
 from bs4 import BeautifulSoup
 from loading_sdk.settings import BASE_URL, USER_AGENT
 
 
-class AboutPageExtractor:
-    def __init__(self):
-        about_page_source = self._get_source(f"{BASE_URL}/om")
-        main_script_url = self._extract_main_script_url(about_page_source)
-        main_script_source = self._get_source(f"{BASE_URL}/{main_script_url}")
-        about_script_url = self._get_about_script_url(main_script_source)
-        about_script_source = self._get_source(about_script_url)
-
-        self.data = self._get_about_data(about_script_source)
-
-    def _get_source(self, url):
+class Extractor(ABC):
+    def get_source(self, url: str) -> str:
         headers = {"User-Agent": USER_AGENT}
         response = requests.get(url, headers=headers, timeout=10)
 
         return response.text
 
-    def _get_about_script_url(self, source_code):
+    def get_script(self, source: str) -> str:
+        soup = BeautifulSoup(source, "html.parser")
+        main_script = soup.find(src=re.compile(r"/static/js/main\.[0-9a-zA-Z]+\.js"))
+
+        return main_script["src"][1:]
+
+    def get_chunks(self, source: str) -> list:
         chunk_urls = []
 
         # Extracts the code with the javascript chunks.
-        match = re.search(r"(static/js/).+?(?=\{)(.+?(?=\[)).+(.chunk.js)", source_code)
+        match = re.search(r"(static/js/).+?(?=\{)(.+?(?=\[)).+(.chunk.js)", source)
 
         if match:
             # Transform the code into valid JSON so the chunk ids can be stored in a python dict.
@@ -37,10 +35,25 @@ class AboutPageExtractor:
                 chunk_url = f"{BASE_URL}/{match.group(1)}{key}.{value}{match.group(3)}"
                 chunk_urls.append(chunk_url)
 
-        return chunk_urls[-1]
+        return chunk_urls
 
-    def _get_about_data(self, source_code):
-        match = re.search(r"var.e=(.+?)(?=\.map).+a=(.+?)(?=\.map)", source_code)
+    @abstractmethod
+    def get_data(self):
+        pass
+
+
+class AboutExtractor(Extractor):
+    def get_data(self):
+        about_page_source = self.get_source(f"{BASE_URL}/om")
+        main_script_url = self.get_script(about_page_source)
+        main_script_source = self.get_source(f"{BASE_URL}/{main_script_url}")
+        chunk_urls = self.get_chunks(main_script_source)
+        about_script_url = chunk_urls[-1]
+        about_script_source = self.get_source(about_script_url)
+
+        match = re.search(
+            r"var.e=(.+?)(?=\.map).+a=(.+?)(?=\.map)", about_script_source
+        )
 
         if not match:
             return None
@@ -57,13 +70,46 @@ class AboutPageExtractor:
         moderators = moderators.replace("\\n", "")
         moderators = moderators.encode("utf-8").decode("unicode_escape")
 
-        return {
+        data = {
             "people": json.loads(people),
             "moderators": json.loads(moderators),
         }
 
-    def _extract_main_script_url(self, html):
-        soup = BeautifulSoup(html, "html.parser")
-        main_script = soup.find(src=re.compile(r"/static/js/main\.[0-9a-zA-Z]+\.js"))
+        return data
 
-        return main_script["src"][1:]
+
+class SocialsExtractor(Extractor):
+    def get_data(self):
+        pass
+
+
+class ExtractorFactory(ABC):
+    @abstractmethod
+    def get_extractor(self) -> Extractor:
+        pass
+
+
+class AboutExtractorFactory(ExtractorFactory):
+    def get_extractor(self) -> Extractor:
+        return AboutExtractor()
+
+
+class SocialsExtractorFactory(ExtractorFactory):
+    def get_extractor(self) -> Extractor:
+        return SocialsExtractor()
+
+
+def extract_data(extractor_name):
+    factories = {
+        "about": AboutExtractorFactory(),
+        "socials": SocialsExtractorFactory(),
+    }
+
+    if extractor_name in factories:
+        factory = factories[extractor_name]
+        extractor = factory.get_extractor()
+        data = extractor.get_data()
+
+        return data
+
+    return None

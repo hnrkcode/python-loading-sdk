@@ -8,7 +8,7 @@ from loading_sdk.settings import (
     EDITORIAL_SORT,
     USER_AGENT,
 )
-from loading_sdk.sync_api.extractors import AboutPageExtractor
+from loading_sdk.sync_api.extractors import extract_data
 
 
 class LoadingApiClient:
@@ -462,6 +462,25 @@ class LoadingApiClient:
 
         :rtype dict
         """
-        about_page = AboutPageExtractor()
+        data = extract_data("about")
 
-        return about_page.data
+        if not data:
+            return {"code": 404, "message": "No data found", "data": None}
+
+        data = {
+            "code": 200,
+            "message": "OK",
+            "data": data,
+        }
+
+        return data
+
+    def get_socials(self):
+        """Get social media links
+
+        :rtype dict
+        """
+
+        data = extract_data("socials")
+
+        return data

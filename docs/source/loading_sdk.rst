@@ -7,7 +7,7 @@ Submodules
 loading\_sdk.api module
 -----------------------
 
-.. automodule:: loading_sdk.api
+.. automodule:: loading_sdk.sync_api.client
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ loading\_sdk.api module
 loading\_sdk.async_api module
 -----------------------------
 
-.. automodule:: loading_sdk.async_api
+.. automodule:: loading_sdk.async_api.client
    :members:
    :undoc-members:
    :show-inheritance:

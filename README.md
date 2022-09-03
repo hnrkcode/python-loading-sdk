@@ -91,3 +91,7 @@ response = client.get_editorials(page=2, post_type="review", sort="title")
 ```python
 response = client.get_about()
 ```
+
+```python
+response = client.get_socials()
+```

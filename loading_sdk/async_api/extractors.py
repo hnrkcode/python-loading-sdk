@@ -38,7 +38,7 @@ class Extractor(ABC):
         return chunk_urls
 
     @abstractmethod
-    def get_data(self):
+    async def get_data(self):
         pass
 
 

@@ -1,7 +1,6 @@
 import math
 
 import aiohttp
-from loading_sdk.async_api.extractors import AboutPageExtractor
 from loading_sdk.settings import (
     API_URL,
     API_VERSION,
@@ -9,6 +8,7 @@ from loading_sdk.settings import (
     EDITORIAL_SORT,
     USER_AGENT,
 )
+from loading_sdk.async_api.extractors import extract_data
 
 
 async def async_loading_api_client(email=None, password=None):
@@ -497,7 +497,23 @@ class AsyncLoadingApiClient:
 
         :rtype dict
         """
-        about_page = AboutPageExtractor()
-        about_data = await about_page.extract_about_data()
 
-        return about_data
+        data = await extract_data("about")
+
+        if not data:
+            return {"code": 404, "message": "No data found", "data": None}
+
+        return {"code": 200, "message": "OK", "data": data}
+
+    async def get_socials(self):
+        """Get social media links
+
+        :rtype dict
+        """
+
+        data = await extract_data("socials")
+
+        if not data:
+            return {"code": 404, "message": "No results found", "data": None}
+
+        return {"code": 200, "message": "OK", "data": data}

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "python-loading-sdk"
-version = "0.2.2"
+version = "0.3.0"
 description = "Python api wrapper for loading.se"
 authors = ["hnrkcode <44243358+hnrkcode@users.noreply.github.com>"]
 repository = "https://github.com/hnrkcode/python-loading-sdk"

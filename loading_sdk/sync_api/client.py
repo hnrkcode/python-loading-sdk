@@ -4,9 +4,10 @@ import requests
 from loading_sdk.settings import (
     API_URL,
     API_VERSION,
-    FORUM_CATEGORIES,
     EDITORIAL_POST_TYPES,
     EDITORIAL_SORT,
+    FORUM_CATEGORIES,
+    POSTS_PER_PAGE,
     USER_AGENT,
 )
 from loading_sdk.sync_api.extractors import extract_data
@@ -189,7 +190,7 @@ class LoadingApiClient:
         # Doing this checks to make sure it only return data from a page that exists.
         if page:
             replies = data["posts"][-1]["replies"]
-            pages = math.ceil(replies / 30)
+            pages = math.ceil(replies / POSTS_PER_PAGE)
 
             # There is always atleast one page.
             if pages == 0:
@@ -483,8 +484,21 @@ class LoadingApiClient:
 
         return {"code": 200, "message": "OK", "data": data}
 
-    def get_total_thread_pages(self):
-        pass
+    def get_total_thread_pages(self, thread_id):
+        response = self.get_thread(thread_id)
+
+        if response["code"] != 200:
+            return response
+
+        thread_start = response["data"]["posts"][-1]
+        replies = thread_start["replies"]
+
+        if replies < 1:
+            replies = 1
+
+        pages = math.ceil(replies / POSTS_PER_PAGE)
+
+        return pages
 
     def get_total_category_pages(self, category):
         if category not in FORUM_CATEGORIES:

@@ -275,6 +275,34 @@ a parameter it’s sorted by thread title instead. (<strong>optional</strong>)</
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.sync_api.client.LoadingApiClient.get_total_category_pages">
+<span class="sig-name descname"><span class="pre">get_total_category_pages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.sync_api.client.LoadingApiClient.get_total_category_pages" title="Permalink to this definition"></a></dt>
+<dd><p>Returns total pages of a forum category.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>category</strong> (<em>str</em>) – Category name. Can be games, other, or texts</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.sync_api.client.LoadingApiClient.get_total_thread_pages">
+<span class="sig-name descname"><span class="pre">get_total_thread_pages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.sync_api.client.LoadingApiClient.get_total_thread_pages" title="Permalink to this definition"></a></dt>
+<dd><p>Returns total pages of a thread.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>thread_id</strong> (<em>str</em>) – Unique thread id</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="loading_sdk.sync_api.client.LoadingApiClient.search">
 <span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.sync_api.client.LoadingApiClient.search" title="Permalink to this definition"></a></dt>
 <dd><p>Returns posts that matches the query</p>
@@ -697,6 +725,34 @@ a parameter it’s sorted by thread title instead. (<strong>optional</strong>)</
 <li><p><strong>thread_id</strong> (<em>str</em>) – unique thread_id</p></li>
 <li><p><strong>page</strong> (<em>int</em>) – thread page (<strong>optional</strong>)</p></li>
 </ul>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.get_total_category_pages">
+<span class="sig-name descname"><span class="pre">get_total_category_pages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">category</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.get_total_category_pages" title="Permalink to this definition"></a></dt>
+<dd><p>Returns total pages of a forum category.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>category</strong> (<em>str</em>) – Category name. Can be games, other, or texts</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="loading_sdk.LoadingApiClient.get_total_thread_pages">
+<span class="sig-name descname"><span class="pre">get_total_thread_pages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">thread_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#loading_sdk.LoadingApiClient.get_total_thread_pages" title="Permalink to this definition"></a></dt>
+<dd><p>Returns total pages of a thread.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>thread_id</strong> (<em>str</em>) – Unique thread id</p>
 </dd>
 <dt class="field-even">Return type</dt>
 <dd class="field-even"><p>dict</p>

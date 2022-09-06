@@ -485,6 +485,13 @@ class LoadingApiClient:
         return {"code": 200, "message": "OK", "data": data}
 
     def get_total_thread_pages(self, thread_id):
+        """Returns total pages of a thread.
+
+        :param thread_id: Unique thread id
+        :type thread_id: str
+        :rtype: dict
+        """
+
         response = self.get_thread(thread_id)
 
         if response["code"] != 200:
@@ -497,6 +504,13 @@ class LoadingApiClient:
         return pages
 
     def get_total_category_pages(self, category):
+        """Returns total pages of a forum category.
+
+        :param category: Category name. Can be games, other, or texts
+        :type category: str
+        :rtype: dict
+        """
+
         if category not in FORUM_CATEGORIES:
             return {"code": 404, "message": "Invalid category", "data": None}
 

@@ -527,7 +527,17 @@ class AsyncLoadingApiClient:
         :type thread_id: str
         :rtype: dict
         """
-        pass
+
+        response = await self.get_thread(thread_id)
+
+        if response["code"] != 200:
+            return response
+
+        thread_start = response["data"]["posts"][-1]
+        replies = max(thread_start["replies"], 1)
+        pages = math.ceil(replies / POSTS_PER_PAGE)
+
+        return pages
 
     async def get_total_category_pages(self, category):
         """Returns total pages of a forum category.

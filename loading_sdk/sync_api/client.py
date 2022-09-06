@@ -491,11 +491,7 @@ class LoadingApiClient:
             return response
 
         thread_start = response["data"]["posts"][-1]
-        replies = thread_start["replies"]
-
-        if replies < 1:
-            replies = 1
-
+        replies = max(thread_start["replies"], 1)
         pages = math.ceil(replies / POSTS_PER_PAGE)
 
         return pages

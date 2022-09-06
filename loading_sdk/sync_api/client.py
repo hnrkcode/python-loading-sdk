@@ -4,6 +4,7 @@ import requests
 from loading_sdk.settings import (
     API_URL,
     API_VERSION,
+    FORUM_CATEGORIES,
     EDITORIAL_POST_TYPES,
     EDITORIAL_SORT,
     USER_AGENT,
@@ -481,3 +482,60 @@ class LoadingApiClient:
             return {"code": 404, "message": "No results found", "data": None}
 
         return {"code": 200, "message": "OK", "data": data}
+
+    def get_total_thread_pages(self):
+        pass
+
+    def get_total_category_pages(self, category):
+        if category not in FORUM_CATEGORIES:
+            return {"code": 404, "message": "Invalid category", "data": None}
+
+        working_page = None
+        current_page = 1
+        url = f"{API_URL}/{API_VERSION}/posts/"
+        headers = {
+            "User-Agent": USER_AGENT,
+            "page": str(current_page),
+            category: category,
+        }
+
+        if category == "texts":
+            headers["post-type"] = "neRegular"
+
+        # Double current page until no results are returned
+        # then we know all pages after that won't work either.
+        while True:
+            headers["page"] = str(current_page)
+            response = requests.get(url, headers=headers, timeout=10)
+            data = response.json()
+
+            if not data["posts"]:
+                break
+
+            working_page = current_page
+            current_page *= 2
+
+        # Check the page in the middle of highest known working page and
+        # current page until they have the same page number.
+        while True:
+            page = working_page + (current_page - working_page) / 2
+            headers["page"] = str(page)
+
+            response = requests.get(url, headers=headers, timeout=10)
+            data = response.json()
+
+            if data["posts"]:
+                working_page = page
+            else:
+                current_page = page
+
+            if math.floor(current_page) == math.floor(working_page):
+                break
+
+        total_pages = math.floor(working_page)
+
+        return {
+            "code": 200,
+            "message": "OK",
+            "data": {"total_pages": total_pages},
+        }

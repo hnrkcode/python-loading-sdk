@@ -6,6 +6,8 @@ from loading_sdk.settings import (
     API_VERSION,
     EDITORIAL_POST_TYPES,
     EDITORIAL_SORT,
+    FORUM_CATEGORIES,
+    POSTS_PER_PAGE,
     USER_AGENT,
 )
 from loading_sdk.async_api.extractors import extract_data
@@ -517,3 +519,70 @@ class AsyncLoadingApiClient:
             return {"code": 404, "message": "No results found", "data": None}
 
         return {"code": 200, "message": "OK", "data": data}
+
+    async def get_total_thread_pages(self, thread_id):
+        """Returns total pages of a thread.
+
+        :param thread_id: Unique thread id
+        :type thread_id: str
+        :rtype: dict
+        """
+        pass
+
+    async def get_total_category_pages(self, category):
+        """Returns total pages of a forum category.
+
+        :param category: Category name. Can be games, other, or texts
+        :type category: str
+        :rtype: dict
+        """
+
+        if category not in FORUM_CATEGORIES:
+            return {"code": 404, "message": "Invalid category", "data": None}
+
+        working_page = None
+        current_page = 1
+        url = f"{API_URL}/{API_VERSION}/posts/"
+        headers = {
+            "User-Agent": USER_AGENT,
+            "page": str(current_page),
+            category: category,
+        }
+
+        if category == "texts":
+            headers["post-type"] = "neRegular"
+
+        async with aiohttp.ClientSession() as session:
+            # Double current page until no results are returned
+            # then we know all pages after that won't work either.
+            while True:
+                headers["page"] = str(current_page)
+                async with session.get(url, headers=headers) as response:
+                    data = await response.json()
+
+                    if not data["posts"]:
+                        break
+
+                    working_page = current_page
+                    current_page *= 2
+
+            # Check the page in the middle of highest known working page and
+            # current page until they have the same page number.
+            while True:
+                page = working_page + (current_page - working_page) / 2
+                headers["page"] = str(page)
+
+                async with session.get(url, headers=headers) as response:
+                    data = await response.json()
+
+                    if data["posts"]:
+                        working_page = page
+                    else:
+                        current_page = page
+
+                    if math.floor(current_page) == math.floor(working_page):
+                        break
+
+        total_pages = math.floor(working_page)
+
+        return total_pages

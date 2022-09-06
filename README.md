@@ -30,6 +30,7 @@ response = client.get_profile()
 ```
 
 It can also be used asyncrounously:
+
 ```python
 from loading_sdk import AsyncLoadingApiClient
 
@@ -94,4 +95,12 @@ response = client.get_about()
 
 ```python
 response = client.get_socials()
+```
+
+```python
+response = client.get_total_thread_pages(thread_id="5bbb986af1deda001d33bc4b")
+```
+
+```python
+response = client.get_total_category_pages(category="games")
 ```

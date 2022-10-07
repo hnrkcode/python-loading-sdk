@@ -539,10 +539,8 @@ class LoadingApiClient:
             working_page = current_page
             current_page *= 2
 
-        # Check the page in the middle of highest known working page and
-        # current page until they have the same page number.
         while True:
-            page = working_page + (current_page - working_page) / 2
+            page = working_page + math.floor((current_page - working_page) / 2)
             headers["page"] = str(page)
 
             response = requests.get(url, headers=headers, timeout=10)
@@ -553,10 +551,10 @@ class LoadingApiClient:
             else:
                 current_page = page
 
-            if math.floor(current_page) == math.floor(working_page):
+            if current_page - 1 == working_page:
                 break
 
-        total_pages = math.floor(working_page)
+        total_pages = working_page
 
         return {
             "code": 200,

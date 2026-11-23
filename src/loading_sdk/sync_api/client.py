@@ -1,6 +1,8 @@
 import math
+from typing import Any
 
 import requests
+
 from loading_sdk.settings import (
     API_URL,
     API_VERSION,
@@ -25,7 +27,7 @@ class LoadingApiClient:
     :type password: str
     """
 
-    def __init__(self, email=None, password=None):
+    def __init__(self, email: str | None = None, password: str | None = None) -> None:
         self._cookies = None
 
         if email and password:
@@ -34,7 +36,7 @@ class LoadingApiClient:
             if response.get("code") == 200:
                 self._cookies = response.get("cookies")
 
-    def _authenticate(self, email, password):
+    def _authenticate(self, email: str, password: str) -> dict[str, Any]:
         url = f"{API_URL}/{API_VERSION}/auth/login"
         headers = {
             "User-Agent": USER_AGENT,
@@ -51,7 +53,9 @@ class LoadingApiClient:
 
         return response.json()
 
-    def _get_threads_in_forum_category(self, category_name, page):
+    def _get_threads_in_forum_category(
+        self, category_name: str, page: int | None
+    ) -> dict[str, Any]:
         url = f"{API_URL}/{API_VERSION}/posts/"
         headers = {"User-Agent": USER_AGENT, category_name: category_name}
 
@@ -76,7 +80,7 @@ class LoadingApiClient:
 
         return {"code": 200, "message": "OK", "data": data}
 
-    def get_profile(self):
+    def get_profile(self) -> dict[str, Any]:
         """Returns authenticated users profile data
 
         :rtype: dict
@@ -97,7 +101,7 @@ class LoadingApiClient:
 
         return response.json()
 
-    def search(self, query):
+    def search(self, query: str) -> dict[str, Any]:
         """Returns posts that matches the query
 
         :param query: Search query
@@ -127,7 +131,7 @@ class LoadingApiClient:
 
         return data
 
-    def get_post(self, post_id):
+    def get_post(self, post_id: str) -> dict[str, Any]:
         """Returns a specific post
 
         :param post_id: unique post id
@@ -154,7 +158,7 @@ class LoadingApiClient:
 
         return response.json()
 
-    def get_thread(self, thread_id, page=None):
+    def get_thread(self, thread_id: str, page: int | None = None) -> dict[str, Any]:
         """Returns all posts on a specific page from a specific thread
 
         :param thread_id: unique thread_id
@@ -219,7 +223,7 @@ class LoadingApiClient:
 
         return successful_response
 
-    def get_games(self, page=None):
+    def get_games(self, page: int | None = None) -> dict[str, Any]:
         """Retruns threads from a specific page in the game category
 
         :param page: Game forum page
@@ -232,7 +236,7 @@ class LoadingApiClient:
 
         return thread_data
 
-    def get_other(self, page=None):
+    def get_other(self, page: int | None = None) -> dict[str, Any]:
         """Retruns threads from a specific page in the other category
 
         :param page: Other forum page
@@ -245,7 +249,12 @@ class LoadingApiClient:
 
         return thread_data
 
-    def get_editorials(self, page=None, post_type=None, sort=None):
+    def get_editorials(
+        self,
+        page: int | None = None,
+        post_type: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
         """Retruns threads from a specific page in the texts category
 
         :param page: Texts forum page (**optional**)
@@ -293,7 +302,7 @@ class LoadingApiClient:
 
         return {"code": 200, "message": "OK", "data": data}
 
-    def create_post(self, thread_id, message):
+    def create_post(self, thread_id: str, message: str) -> dict[str, Any]:
         """Create new post in a thread
 
         :param thread_id: Unique thread id
@@ -338,7 +347,7 @@ class LoadingApiClient:
         # Handle any other unknown status code.
         return response.json()
 
-    def edit_post(self, post_id, message):
+    def edit_post(self, post_id: str, message: str) -> dict[str, Any]:
         """Edit existing post in a thread
 
         :param post_id: Unique post id
@@ -383,7 +392,9 @@ class LoadingApiClient:
         # Handle any other unknown status code.
         return response.json()
 
-    def create_thread(self, title, message, category_name, post_type=None):
+    def create_thread(
+        self, title: str, message: str, category_name: str, post_type: str | None = None
+    ) -> dict[str, Any]:
         """Create new thread in one of the forum categories
 
         :param title: Thread title
@@ -441,7 +452,7 @@ class LoadingApiClient:
         # Handle any other unknown status code.
         return response.json()
 
-    def edit_thread(self, thread_id, message):
+    def edit_thread(self, thread_id: str, message: str) -> dict[str, Any]:
         """Edit existing thread
 
         :param thread_id: Unique thread id
@@ -459,7 +470,7 @@ class LoadingApiClient:
 
         return thread_data
 
-    def get_about(self):
+    def get_about(self) -> dict[str, Any]:
         """Get about page data
 
         :rtype dict
@@ -471,7 +482,7 @@ class LoadingApiClient:
 
         return {"code": 200, "message": "OK", "data": data}
 
-    def get_socials(self):
+    def get_socials(self) -> dict[str, Any]:
         """Get social media links
 
         :rtype dict
@@ -484,17 +495,18 @@ class LoadingApiClient:
 
         return {"code": 200, "message": "OK", "data": data}
 
-    def get_total_thread_pages(self, thread_id):
+    def get_total_thread_pages(self, thread_id: str) -> int | dict[str, Any]:
         """Returns total pages of a thread.
 
         :param thread_id: Unique thread id
         :type thread_id: str
-        :rtype: dict
+        :returns: The page count, or the error dictionary returned by get_thread.
+        :rtype: int | dict
         """
 
         response = self.get_thread(thread_id)
 
-        if response["code"] != 200:
+        if response["code"] != 200 or "data" not in response:
             return response
 
         thread_start = response["data"]["posts"][-1]
@@ -503,7 +515,7 @@ class LoadingApiClient:
 
         return pages
 
-    def get_total_category_pages(self, category):
+    def get_total_category_pages(self, category: str) -> dict[str, Any]:
         """Returns total pages of a forum category.
 
         :param category: Category name. Can be games, other, or texts
@@ -514,7 +526,7 @@ class LoadingApiClient:
         if category not in FORUM_CATEGORIES:
             return {"code": 404, "message": "Invalid category", "data": None}
 
-        working_page = None
+        working_page = 0
         current_page = 1
         url = f"{API_URL}/{API_VERSION}/posts/"
         headers = {
@@ -539,8 +551,8 @@ class LoadingApiClient:
             working_page = current_page
             current_page *= 2
 
-        while True:
-            page = working_page + math.floor((current_page - working_page) / 2)
+        while current_page - working_page > 1:
+            page = (working_page + current_page) // 2
             headers["page"] = str(page)
 
             response = requests.get(url, headers=headers, timeout=10)
@@ -551,13 +563,8 @@ class LoadingApiClient:
             else:
                 current_page = page
 
-            if current_page - 1 == working_page:
-                break
-
-        total_pages = working_page
-
         return {
             "code": 200,
             "message": "OK",
-            "data": {"total_pages": total_pages},
+            "data": {"total_pages": working_page},
         }

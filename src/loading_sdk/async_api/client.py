@@ -1,6 +1,9 @@
 import math
+from typing import Any
 
 import aiohttp
+
+from loading_sdk.async_api.extractors import extract_data
 from loading_sdk.settings import (
     API_URL,
     API_VERSION,
@@ -10,10 +13,11 @@ from loading_sdk.settings import (
     POSTS_PER_PAGE,
     USER_AGENT,
 )
-from loading_sdk.async_api.extractors import extract_data
 
 
-async def async_loading_api_client(email=None, password=None):
+async def async_loading_api_client(
+    email: str | None = None, password: str | None = None
+) -> "AsyncLoadingApiClient":
     client = AsyncLoadingApiClient()
     await client._set_cookie(email, password)
 
@@ -33,17 +37,17 @@ class AsyncLoadingApiClient:
     :type password: str
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._cookies = None
 
-    async def _set_cookie(self, email, password):
+    async def _set_cookie(self, email: str | None, password: str | None) -> None:
         if email and password:
             response = await self._authenticate(email, password)
 
             if response.get("code") == 200:
                 self._cookies = response.get("cookies")
 
-    async def _authenticate(self, email, password):
+    async def _authenticate(self, email: str, password: str) -> dict[str, Any]:
         url = f"{API_URL}/{API_VERSION}/auth/login"
         headers = {
             "User-Agent": USER_AGENT,
@@ -61,7 +65,9 @@ class AsyncLoadingApiClient:
 
                 return await response.json()
 
-    async def _get_threads_in_forum_category(self, category_name, page):
+    async def _get_threads_in_forum_category(
+        self, category_name: str, page: int | None
+    ) -> dict[str, Any]:
         url = f"{API_URL}/{API_VERSION}/posts/"
         headers = {"User-Agent": USER_AGENT, category_name: category_name}
 
@@ -95,7 +101,7 @@ class AsyncLoadingApiClient:
                     "data": data,
                 }
 
-    async def get_profile(self):
+    async def get_profile(self) -> dict[str, Any]:
         """Returns authenticated users profile data
 
         :rtype: dict
@@ -119,7 +125,7 @@ class AsyncLoadingApiClient:
 
                 return data
 
-    async def search(self, query):
+    async def search(self, query: str) -> dict[str, Any]:
         """Returns posts that matches the query
 
         :param query: Search query
@@ -147,7 +153,7 @@ class AsyncLoadingApiClient:
 
                 return data
 
-    async def get_post(self, post_id):
+    async def get_post(self, post_id: str) -> dict[str, Any]:
         """Returns a specific post
 
         :param post_id: unique post id
@@ -174,7 +180,9 @@ class AsyncLoadingApiClient:
 
                 return data
 
-    async def get_thread(self, thread_id, page=None):
+    async def get_thread(
+        self, thread_id: str, page: int | None = None
+    ) -> dict[str, Any]:
         """Returns all posts on a specific page from a specific thread
 
         :param thread_id: unique thread_id
@@ -239,7 +247,7 @@ class AsyncLoadingApiClient:
 
                 return successful_response
 
-    async def get_games(self, page=None):
+    async def get_games(self, page: int | None = None) -> dict[str, Any]:
         """Retruns threads from a specific page in the game category
 
         :param page: Game forum page
@@ -252,7 +260,7 @@ class AsyncLoadingApiClient:
 
         return thread_data
 
-    async def get_other(self, page=None):
+    async def get_other(self, page: int | None = None) -> dict[str, Any]:
         """Retruns threads from a specific page in the other category
 
         :param page: Other forum page
@@ -265,7 +273,12 @@ class AsyncLoadingApiClient:
 
         return thread_data
 
-    async def get_editorials(self, page=None, post_type=None, sort=None):
+    async def get_editorials(
+        self,
+        page: int | None = None,
+        post_type: str | None = None,
+        sort: str | None = None,
+    ) -> dict[str, Any]:
         """Retruns threads from a specific page in the texts category
 
         :param page: Texts forum page (**optional**)
@@ -322,7 +335,7 @@ class AsyncLoadingApiClient:
                     "data": data,
                 }
 
-    async def create_post(self, thread_id, message):
+    async def create_post(self, thread_id: str, message: str) -> dict[str, Any]:
         """Create new post in a thread
 
         :param thread_id: Unique thread id
@@ -369,7 +382,7 @@ class AsyncLoadingApiClient:
                 # Handle any other unknown status code.
                 return data
 
-    async def edit_post(self, post_id, message):
+    async def edit_post(self, post_id: str, message: str) -> dict[str, Any]:
         """Edit existing post in a thread
 
         :param post_id: Unique post id
@@ -416,7 +429,9 @@ class AsyncLoadingApiClient:
                 # Handle any other unknown status code.
                 return data
 
-    async def create_thread(self, title, message, category_name, post_type=None):
+    async def create_thread(
+        self, title: str, message: str, category_name: str, post_type: str | None = None
+    ) -> dict[str, Any]:
         """Create new thread in one of the forum categories
 
         :param title: Thread title
@@ -476,7 +491,7 @@ class AsyncLoadingApiClient:
                 # Handle any other unknown status code.
                 return data
 
-    async def edit_thread(self, thread_id, message):
+    async def edit_thread(self, thread_id: str, message: str) -> dict[str, Any]:
         """Edit existing thread
 
         :param thread_id: Unique thread id
@@ -494,7 +509,7 @@ class AsyncLoadingApiClient:
 
         return thread_data
 
-    async def get_about(self):
+    async def get_about(self) -> dict[str, Any]:
         """Get about page data
 
         :rtype dict
@@ -507,7 +522,7 @@ class AsyncLoadingApiClient:
 
         return {"code": 200, "message": "OK", "data": data}
 
-    async def get_socials(self):
+    async def get_socials(self) -> dict[str, Any]:
         """Get social media links
 
         :rtype dict
@@ -520,17 +535,18 @@ class AsyncLoadingApiClient:
 
         return {"code": 200, "message": "OK", "data": data}
 
-    async def get_total_thread_pages(self, thread_id):
+    async def get_total_thread_pages(self, thread_id: str) -> int | dict[str, Any]:
         """Returns total pages of a thread.
 
         :param thread_id: Unique thread id
         :type thread_id: str
-        :rtype: dict
+        :returns: The page count, or the error dictionary returned by get_thread.
+        :rtype: int | dict
         """
 
         response = await self.get_thread(thread_id)
 
-        if response["code"] != 200:
+        if response["code"] != 200 or "data" not in response:
             return response
 
         thread_start = response["data"]["posts"][-1]
@@ -539,7 +555,7 @@ class AsyncLoadingApiClient:
 
         return pages
 
-    async def get_total_category_pages(self, category):
+    async def get_total_category_pages(self, category: str) -> dict[str, Any]:
         """Returns total pages of a forum category.
 
         :param category: Category name. Can be games, other, or texts
@@ -550,7 +566,7 @@ class AsyncLoadingApiClient:
         if category not in FORUM_CATEGORIES:
             return {"code": 404, "message": "Invalid category", "data": None}
 
-        working_page = None
+        working_page = 0
         current_page = 1
         url = f"{API_URL}/{API_VERSION}/posts/"
         headers = {
@@ -576,8 +592,8 @@ class AsyncLoadingApiClient:
                     working_page = current_page
                     current_page *= 2
 
-            while True:
-                page = working_page + math.floor((current_page - working_page) / 2)
+            while current_page - working_page > 1:
+                page = (working_page + current_page) // 2
                 headers["page"] = str(page)
 
                 async with session.get(url, headers=headers) as response:
@@ -588,13 +604,8 @@ class AsyncLoadingApiClient:
                     else:
                         current_page = page
 
-                    if current_page - 1 == working_page:
-                        break
-
-        total_pages = working_page
-
         return {
             "code": 200,
             "message": "OK",
-            "data": {"total_pages": total_pages},
+            "data": {"total_pages": working_page},
         }

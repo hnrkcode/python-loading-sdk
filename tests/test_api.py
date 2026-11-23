@@ -1,14 +1,15 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-import requests
+from requests.cookies import RequestsCookieJar
+
 from loading_sdk import LoadingApiClient
 
 
 class TestLoadingApiClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.cookie_jar = requests.cookies.RequestsCookieJar()
+        cls.cookie_jar = RequestsCookieJar()
         cls.cookie_jar.set("jwt", "placeholder_token_1")
         cls.cookie_jar.set("refreshToken", "placeholder_token_2")
 
@@ -152,7 +153,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response.get("message"), "OK")
-        self.assertDictEqual(response.get("data"), expected_response)
+        self.assertDictEqual(response["data"], expected_response)
 
     @patch("loading_sdk.sync_api.client.requests")
     def test_get_profile_failure(self, mock_requests):
@@ -943,7 +944,7 @@ class TestLoadingApiClient(unittest.TestCase):
         api = LoadingApiClient()
         response = api.get_games(page=91)
 
-        self.assertDictEqual(response.get("data"), expected_response)
+        self.assertDictEqual(response["data"], expected_response)
 
     @patch("loading_sdk.sync_api.client.requests")
     def test_get_games_failure_page_too_low(self, mock_requests):
@@ -1194,9 +1195,9 @@ class TestLoadingApiClient(unittest.TestCase):
         api = LoadingApiClient()
         response = api.get_games(page=91)
 
-        self.assertDictEqual(response.get("data"), expected_response)
+        self.assertDictEqual(response["data"], expected_response)
 
-        threads = response.get("data").get("posts")
+        threads = response["data"]["posts"]
 
         for thread in threads:
             self.assertEqual(thread.get("category"), "other")
@@ -1539,9 +1540,9 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response.get("message"), "OK")
-        self.assertDictEqual(response.get("data"), expected_response)
+        self.assertDictEqual(response["data"], expected_response)
 
-        threads = response.get("data").get("posts")
+        threads = response["data"]["posts"]
 
         for thread in threads:
             self.assertEqual(thread.get("postType"), "update")
@@ -1625,7 +1626,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertIsNotNone(api._cookies)
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response.get("code"), 200)
-        self.assertDictEqual(response.get("data"), expected_response)
+        self.assertDictEqual(response["data"], expected_response)
 
         # Edit thread.
         api = LoadingApiClient("test@email.com", "password")
@@ -1637,7 +1638,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertIsNotNone(api._cookies)
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response.get("code"), 200)
-        self.assertDictEqual(response.get("data"), expected_response)
+        self.assertDictEqual(response["data"], expected_response)
 
     @patch("loading_sdk.sync_api.client.requests")
     def test_edit_post_failure_no_auth_token(self, mock_requests):
@@ -1837,7 +1838,7 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertIsNotNone(api._cookies)
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response.get("code"), 201)
-        self.assertDictEqual(response.get("data"), expected_response)
+        self.assertDictEqual(response["data"], expected_response)
 
     def test_create_thread_failure_invalid_category(self):
         expected_response = {"code": 400, "message": "Invalid forum category"}

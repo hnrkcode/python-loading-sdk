@@ -3,7 +3,8 @@ import re
 from abc import ABC, abstractmethod
 
 import requests
-from bs4 import BeautifulSoup
+
+from loading_sdk._parsing import chunk_urls, main_script_path
 from loading_sdk.settings import BASE_URL, USER_AGENT
 
 
@@ -14,28 +15,11 @@ class Extractor(ABC):
 
         return response.text
 
-    def get_script(self, source: str) -> str:
-        soup = BeautifulSoup(source, "html.parser")
-        main_script = soup.find(src=re.compile(r"/static/js/main\.[0-9a-zA-Z]+\.js"))
+    def get_script(self, source: str) -> str | None:
+        return main_script_path(source)
 
-        return main_script["src"][1:]
-
-    def get_chunks(self, source: str) -> list:
-        chunk_urls = []
-
-        # Extracts the code with the javascript chunks.
-        match = re.search(r"(static/js/).+?(?=\{)(.+?(?=\[)).+(.chunk.js)", source)
-
-        if match:
-            # Transform the code into valid JSON so the chunk ids can be stored in a python dict.
-            file_name_values = re.sub(r"([0-9]+?(?=:))", r'"\1"', match.group(2))
-            chunk_ids = json.loads(file_name_values)
-
-            for key, value in chunk_ids.items():
-                chunk_url = f"{BASE_URL}/{match.group(1)}{key}.{value}{match.group(3)}"
-                chunk_urls.append(chunk_url)
-
-        return chunk_urls
+    def get_chunks(self, source: str) -> list[str]:
+        return chunk_urls(source, BASE_URL)
 
     @abstractmethod
     def get_data(self):
@@ -46,8 +30,12 @@ class AboutExtractor(Extractor):
     def get_data(self):
         about_page_source = self.get_source(f"{BASE_URL}/om")
         main_script_url = self.get_script(about_page_source)
+        if main_script_url is None:
+            return None
         main_script_source = self.get_source(f"{BASE_URL}/{main_script_url}")
         chunk_urls = self.get_chunks(main_script_source)
+        if not chunk_urls:
+            return None
         about_script_url = chunk_urls[-1]
         about_script_source = self.get_source(about_script_url)
 
@@ -82,6 +70,8 @@ class SocialsExtractor(Extractor):
     def get_data(self):
         page_source = self.get_source(BASE_URL)
         main_script_url = self.get_script(page_source)
+        if main_script_url is None:
+            return None
         main_script_source = self.get_source(f"{BASE_URL}/{main_script_url}")
 
         match = re.findall(
@@ -116,7 +106,7 @@ class SocialsExtractorFactory(ExtractorFactory):
         return SocialsExtractor()
 
 
-def extract_data(extractor_name):
+def extract_data(extractor_name: str):
     factories = {
         "about": AboutExtractorFactory(),
         "socials": SocialsExtractorFactory(),

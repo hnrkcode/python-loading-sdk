@@ -22,10 +22,9 @@ Repository = "https://github.com/hnrkcode/python-loading-sdk"
 dev = [
     { include-group = "lint" },
     { include-group = "test" },
-    "tox>=4.22,<5",
 ]
-lint = ["black", "flake8", "pylint"]
-test = ["coverage"]
+lint = ["ruff", "ty", "types-requests"]
+test = ["pytest", "pytest-asyncio", "pytest-cov", "pytest-httpserver"]
 docs = [
     "sphinx>=8.2",
     "sphinx-rtd-theme>=3",
@@ -39,5 +38,10 @@ build-backend = "uv_build"
 module-name = "loading_sdk"
 source-include = ["tests/**/*.py"]
 
-[tool.pylint.messages_control]
-disable = ["C0114", "C0115", "C0116", "W0212", "R0801", "E0401", "R0903"]
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "C90", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"

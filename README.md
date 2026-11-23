@@ -25,7 +25,10 @@ Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and run th
 
 ```sh
 uv sync --locked
-uv run --locked python -m unittest discover -v
+uv run ruff format --check .
+uv run ruff check .
+uv run ty check
+uv run pytest --cov=loading_sdk --cov-branch
 uv build
 ```
 
@@ -62,19 +65,27 @@ response = client.get_profile()
 ```
 
 ```python
-response = client.create_post(thread_id="5bbb986af1deda001d33bc4b", message="My message!")
+response = client.create_post(
+    thread_id="5bbb986af1deda001d33bc4b", message="My message!"
+)
 ```
 
 ```python
-response = client.edit_post(post_id="5bc876dd70a79c001dab7ebe", message="My updated message!")
+response = client.edit_post(
+    post_id="5bc876dd70a79c001dab7ebe", message="My updated message!"
+)
 ```
 
 ```python
-response = client.create_thread(title="My title", message="The content!", category_name="games")
+response = client.create_thread(
+    title="My title", message="The content!", category_name="games"
+)
 ```
 
 ```python
-response = client.edit_thread(post_id="5bbb986af1deda001d33bc4b", message="My updated message!")
+response = client.edit_thread(
+    thread_id="5bbb986af1deda001d33bc4b", message="My updated message!"
+)
 ```
 
 ### Anonymous

@@ -24,20 +24,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install locked dependencies
-        run: uv sync --locked --no-dev --group test
+        run: uv sync --locked
 
       - name: Test
-        run: |
-          uv run --no-sync coverage run --source=loading_sdk --branch -m unittest discover -v
-          uv run --no-sync coverage report -m
+        run: uv run pytest --cov=loading_sdk --cov-branch
 
-      - name: Lint
+      - name: Check formatting, lint, and types
         if: matrix.python-version == '3.13'
         run: |
-          uv sync --locked --no-dev --group lint
-          uv run --no-sync black --check --diff src/loading_sdk
-          uv run --no-sync flake8 src/loading_sdk
-          uv run --no-sync pylint src/loading_sdk
+          uv run ruff format --check .
+          uv run ruff check .
+          uv run ty check
 
       - name: Build and smoke-test the wheel
         if: matrix.python-version == '3.13'

@@ -8,7 +8,7 @@ Read Loading.se forums and editorials, search posts, and join discussions from s
 
 ## Installation
 
-Requires Python 3.11 or later.
+Requires Python 3.12 or later.
 
 ```sh
 pip install python-loading-sdk
@@ -104,7 +104,7 @@ response = client.edit_thread(
 
 ## Development
 
-The checkout defaults to Python 3.13. From the repository root, install the locked dependencies with [uv](https://docs.astral.sh/uv/getting-started/installation/).
+The checkout defaults to Python 3.15. From the repository root, install the locked dependencies with [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
 ```sh
 uv sync --locked

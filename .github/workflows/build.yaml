@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
+        python-version: ["3.12", "3.13", "3.14", "3.15"]
 
     steps:
       - name: Checkout sources
@@ -42,14 +42,14 @@ jobs:
         run: uv run pytest --cov=loading_sdk --cov-branch
 
       - name: Check formatting, lint, and types
-        if: matrix.python-version == '3.13'
+        if: matrix.python-version == '3.15'
         run: |
           uv run ruff format --check .
           uv run ruff check .
           uv run ty check
 
       - name: Build documentation
-        if: matrix.python-version == '3.13'
+        if: matrix.python-version == '3.15'
         run: uv run --locked --group docs sphinx-build -W -b html docs/source docs/build/html
 
   distributions:
@@ -64,7 +64,7 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           version: "0.13.9"
-          python-version: "3.13"
+          python-version: "3.15"
       - name: Build and verify distributions
         id: verify
         shell: bash

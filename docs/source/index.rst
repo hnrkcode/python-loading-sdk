@@ -3,7 +3,7 @@ Python Loading SDK
 
 Use version |release| of the SDK to read Loading.se forums and editorials
 from Python. Install it with ``pip install python-loading-sdk`` on Python
-3.11 or newer.
+3.12 or newer.
 
 Read public content
 -------------------

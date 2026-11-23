@@ -49,6 +49,8 @@ git push --atomic origin main "v$release_version"
 
 Open the [release workflow](https://github.com/hnrkcode/python-loading-sdk/actions/workflows/pypi.yaml) and select your tag. A passing `check-index` job confirms that the published wheel and source distribution passed checksum and installation checks.
 
+The workflow then publishes a GitHub release for the same tag. PyPI versions become regular releases, and TestPyPI versions are marked as pre-releases. GitHub generates the release notes automatically. If a draft already exists for the tag, the workflow publishes it with its existing notes.
+
 After verifying a release candidate on TestPyPI, repeat the steps with the stable version to publish to PyPI.
 
 ## One-time publisher setup

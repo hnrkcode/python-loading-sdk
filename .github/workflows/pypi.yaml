@@ -68,3 +68,24 @@ jobs:
           done <<< "$CHECKSUMS"
           printf '%s\n' "$CHECKSUMS" | sha256sum --strict --check
           bash "$GITHUB_WORKSPACE/.github/scripts/check-distributions.sh" "$downloads" "$version"
+
+  github-release:
+    needs: [verify, check-index]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Publish the GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          PRERELEASE: ${{ needs.verify.outputs.index == 'testpypi' }}
+        run: |
+          if draft=$(gh release view "$GITHUB_REF_NAME" --json isDraft --jq '.isDraft'); then
+            if [[ "$draft" == true ]]; then
+              gh release edit "$GITHUB_REF_NAME" --draft=false --prerelease="$PRERELEASE"
+            fi
+          else
+            gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --prerelease="$PRERELEASE"
+          fi

@@ -13,9 +13,23 @@
 
 ## Install
 
+Requires Python 3.11 or newer.
+
 ```
 pip install python-loading-sdk
 ```
+
+## Development
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and run these commands from the checkout. The project defaults to Python 3.13.
+
+```sh
+uv sync --locked
+uv run --locked python -m unittest discover -v
+uv build
+```
+
+The SDK lives in `src/loading_sdk/`. The build produces a wheel and source distribution in `dist/`. To build the documentation, run `uv run --locked --group docs sphinx-build -b html docs/source docs/build/html`.
 
 ## Usage
 

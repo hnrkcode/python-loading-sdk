@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.5.2 (2026-11-23)
+
+- Update pypi workflow to automatically create github releases.
+
 ## 0.5.1 (2026-11-23)
 
 - Updated the README with runnable examples for reading public threads synchronously and accessing a profile asynchronously. The PyPI documentation link now points to these examples.

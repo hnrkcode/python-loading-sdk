@@ -1,27 +1,69 @@
-name: Publish to PyPI
+name: Release to TestPyPI or PyPI
 
 on:
-  release:
-    types: [published]
+  push:
+    tags: ['v*']
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  build-and-publish:
+  verify:
+    if: github.ref_type == 'tag'
+    uses: ./.github/workflows/build.yaml
+
+  publish:
+    needs: verify
     runs-on: ubuntu-latest
-
+    environment:
+      name: ${{ needs.verify.outputs.index }}
+      url: ${{ needs.verify.outputs.index == 'testpypi' && 'https://test.pypi.org/project/python-loading-sdk/' || 'https://pypi.org/project/python-loading-sdk/' }}
+    permissions:
+      id-token: write
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v6
+      - name: Retrieve the verified files
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          artifact-ids: ${{ needs.verify.outputs.artifact-id }}
+          path: dist
+          merge-multiple: true
+      - name: Verify both file hashes
+        working-directory: dist
+        env:
+          CHECKSUMS: ${{ needs.verify.outputs.checksums }}
+        run: printf '%s\n' "$CHECKSUMS" | sha256sum --strict --check
+      - name: Publish with Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
+        with:
+          repository-url: ${{ needs.verify.outputs.index == 'testpypi' && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v7
+  check-index:
+    needs: [verify, publish]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
         with:
           version: "0.13.9"
-
-      - name: Build distributions
-        run: uv build
-
-      - name: Publish distributions
+          python-version: "3.13"
+      - name: Verify hashes and clean installs from the index
+        shell: bash
         env:
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
-        run: uv publish
+          INDEX: ${{ needs.verify.outputs.index }}
+          CHECKSUMS: ${{ needs.verify.outputs.checksums }}
+        run: |
+          set -euo pipefail
+          version=${GITHUB_REF_NAME#v}
+          host=pypi.org
+          if [[ "$INDEX" == testpypi ]]; then host=test.pypi.org; fi
+          downloads=$(mktemp -d)
+          cd "$downloads"
+          curl -fsSL --retry 8 --retry-delay 5 --retry-all-errors \
+            "https://$host/pypi/python-loading-sdk/$version/json" -o metadata.json
+          for file in "python_loading_sdk-$version-py3-none-any.whl" "python_loading_sdk-$version.tar.gz"; do
+            url=$(jq -er --arg name "$file" '.urls[] | select(.filename == $name) | .url' metadata.json)
+            curl -fsSL --retry 3 "$url" -o "$file"
+          done
+          printf '%s\n' "$CHECKSUMS" | sha256sum --strict --check
+          bash "$GITHUB_WORKSPACE/.github/scripts/check-distributions.sh" "$downloads" "$version"

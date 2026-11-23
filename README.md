@@ -19,6 +19,8 @@ Requires Python 3.11 or newer.
 pip install python-loading-sdk
 ```
 
+See the [release notes](https://github.com/hnrkcode/python-loading-sdk/blob/main/CHANGELOG.md) for Python support and HTTP behavior changes.
+
 ## Development
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and run these commands from the checkout. The project defaults to Python 3.13.
@@ -33,6 +35,12 @@ uv build
 ```
 
 The SDK lives in `src/loading_sdk/`. The build produces a wheel and source distribution in `dist/`. To build the documentation, run `uv run --locked --group docs sphinx-build -b html docs/source docs/build/html`.
+
+### Publishing a release
+
+Set the project version with `uv version`, commit the updated metadata and lockfile, and push a matching `v<version>` tag. A prerelease tag such as `v0.5.0rc1` targets TestPyPI. After its index verification succeeds, a stable tag such as `v0.5.0` targets PyPI.
+
+Configure a GitHub Trusted Publisher on each index for `hnrkcode/python-loading-sdk`, workflow `pypi.yaml`, and the corresponding GitHub environment (`testpypi` or `pypi`). The workflow checks the distributions, uploads the verified files, and installs both downloads from the target index.
 
 ## Usage
 

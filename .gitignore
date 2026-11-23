@@ -1,6 +1,7 @@
 __pycache__
 .venv/
 dist
+/docs/build/
 .tox/
 .pytest_cache/
 .ruff_cache/

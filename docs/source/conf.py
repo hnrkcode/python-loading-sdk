@@ -6,10 +6,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+from importlib import metadata
+
 project = "python-loading-sdk"
 copyright = "2022, hnrkcode"
 author = "hnrkcode"
-release = "0.4.1"
+release = metadata.version(project)
+version = release
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

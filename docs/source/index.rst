@@ -6,6 +6,8 @@
 Welcome to python-loading-sdk's documentation!
 ==============================================
 
+SDK version |release|.
+
 .. code-block:: python
    :caption: Simple example of how to use the SDK.
 

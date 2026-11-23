@@ -6,6 +6,18 @@ on:
   pull_request:
     branches: [ main ]
 
+  workflow_call:
+    outputs:
+      artifact-id:
+        value: ${{ jobs.distributions.outputs.artifact-id }}
+      checksums:
+        value: ${{ jobs.distributions.outputs.checksums }}
+      index:
+        value: ${{ jobs.distributions.outputs.index }}
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,9 +48,55 @@ jobs:
           uv run ruff check .
           uv run ty check
 
-      - name: Build and smoke-test the wheel
+      - name: Build documentation
         if: matrix.python-version == '3.13'
+        run: uv run --locked --group docs sphinx-build -W -b html docs/source docs/build/html
+
+  distributions:
+    needs: build
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      checksums: ${{ steps.verify.outputs.checksums }}
+      index: ${{ steps.verify.outputs.index }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.13.9"
+          python-version: "3.13"
+      - name: Build and verify distributions
+        id: verify
+        shell: bash
         run: |
-          uv build
-          cd "$RUNNER_TEMP"
-          uv run --isolated --no-project --with "$GITHUB_WORKSPACE"/dist/*.whl python -I -c 'import asyncio; from loading_sdk import LoadingApiClient, AsyncLoadingApiClient; LoadingApiClient(); asyncio.run(AsyncLoadingApiClient())'
+          set -euo pipefail
+          version=$(uv version --short)
+          if [[ "$GITHUB_REF_TYPE" == tag ]]; then
+            [[ "$GITHUB_REF_NAME" == "v$version" ]]
+            if [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(a|b|rc)[0-9]+$ ]]; then
+              echo "index=testpypi" >> "$GITHUB_OUTPUT"
+            elif [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "index=pypi" >> "$GITHUB_OUTPUT"
+            else
+              echo "Unsupported release version: $version" >&2
+              exit 1
+            fi
+          fi
+          uv build --out-dir dist
+          uv run --locked --only-group release twine check --strict dist/*
+          bash .github/scripts/check-distributions.sh dist "$version"
+          cd dist
+          {
+            echo 'checksums<<EOF'
+            sha256sum *.whl *.tar.gz
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+      - name: Store verified distributions
+        id: upload
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: distributions-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
+          if-no-files-found: error

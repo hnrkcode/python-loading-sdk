@@ -1,5 +1,11 @@
 # Release notes
 
+## 0.5.1 (unreleased)
+
+- Updated the README with runnable examples for reading public threads synchronously and accessing a profile asynchronously. The PyPI documentation link now points to these examples.
+- Updated the API reference to show how to create an async client, filter editorials, and read the results of the thread and category page-count methods.
+- Moved the release instructions into [CONTRIBUTING.md](CONTRIBUTING.md), including how to verify a release on TestPyPI or PyPI.
+
 ## 0.5.0 (2026-11-23)
 
 Python 3.11 is the minimum supported version. The test suite covers Python 3.11 through 3.15. Projects on Python 3.8–3.10 can continue using 0.4.1.

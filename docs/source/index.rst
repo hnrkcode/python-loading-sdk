@@ -1,41 +1,46 @@
-.. python-loading-sdk documentation master file, created by
-   sphinx-quickstart on Thu Aug 25 20:46:11 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Python Loading SDK
+==================
 
-Welcome to python-loading-sdk's documentation!
-==============================================
+Use version |release| of the SDK to read Loading.se forums and editorials
+from Python. Install it with ``pip install python-loading-sdk`` on Python
+3.11 or newer.
 
-SDK version |release|.
+Read public content
+-------------------
 
 .. code-block:: python
-   :caption: Simple example of how to use the SDK.
 
    from loading_sdk import LoadingApiClient
 
-   # Creates a client that is authenticated with user credentials.
-   client = LoadingApiClient(email="example@email.com", password="example_password")
+   with LoadingApiClient() as client:
+       response = client.get_post(post_id="5bb7aac18fef22001d90267b")
+       if response["message"] == "OK":
+           print(response["data"]["posts"][0]["body"])
 
-   # Requires auth.
-   profile_data = client.get_profile()
-   print(profile_data)
+Use an async client
+-------------------
 
-   # Can be used anonymously.
-   post_data = client.get_post(post_id="5bb7aac18fef22001d90267b")
+Await the factory to create a client. Pass your email and password to either
+client to access your profile or write forum posts.
 
-   if post_data["message"] == "OK":
-      print(f"post content: {post_data['data']['posts'][0]['body']}")
+.. code-block:: python
+
+   import asyncio
+   import os
+
+   from loading_sdk import AsyncLoadingApiClient
+
+   async def main():
+       async with await AsyncLoadingApiClient(
+           email=os.environ["LOADING_EMAIL"],
+           password=os.environ["LOADING_PASSWORD"],
+       ) as client:
+           profile = await client.get_profile()
+           print(profile["code"])
+
+   asyncio.run(main())
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    modules
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

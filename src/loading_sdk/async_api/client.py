@@ -16,6 +16,7 @@ async def async_loading_api_client(
     transport: httpx.AsyncBaseTransport | None = None,
     timeout: float = 300.0,
 ) -> "AsyncLoadingApiClient":
+    """Create an async client and log in when both credentials are supplied."""
     client = AsyncLoadingApiClient(transport=transport, timeout=timeout)
     if email and password:
         try:
@@ -106,59 +107,29 @@ class AsyncLoadingApiClient:
         return await self._run(_api.authenticate(email, password))
 
     async def get_profile(self) -> dict[str, Any]:
-        """Returns authenticated users profile data
-
-        :rtype: dict
-        """
+        """Return the authenticated user's profile."""
         return await self._run(_api.get_profile())
 
     async def search(self, query: str) -> dict[str, Any]:
-        """Returns posts that matches the query
-
-        :param query: Search query
-        :type query: str
-        :rtype: dict
-        """
+        """Return posts matching the search query."""
         return await self._run(_api.search(query))
 
     async def get_post(self, post_id: str) -> dict[str, Any]:
-        """Returns a specific post
-
-        :param post_id: unique post id
-        :type post_id: str
-        :rtype: dict
-        """
+        """Return the post with the given ID."""
         return await self._run(_api.get_post(post_id))
 
     async def get_thread(
         self, thread_id: str, page: int | None = None
     ) -> dict[str, Any]:
-        """Returns all posts on a specific page from a specific thread
-
-        :param thread_id: unique thread_id
-        :type thread_id: str
-        :param page: thread page (**optional**)
-        :type page: int
-        :rtype: dict
-        """
+        """Return one page of posts from the thread, starting at page 1."""
         return await self._run(_api.get_thread(thread_id, page))
 
     async def get_games(self, page: int | None = None) -> dict[str, Any]:
-        """Retruns threads from a specific page in the game category
-
-        :param page: Game forum page
-        :type page: int
-        :rtype: dict
-        """
+        """Return one page of threads from the games forum."""
         return await self._run(_api.category_page("games", page))
 
     async def get_other(self, page: int | None = None) -> dict[str, Any]:
-        """Retruns threads from a specific page in the other category
-
-        :param page: Other forum page
-        :type page: int
-        :rtype: dict
-        """
+        """Return one page of threads from the other forum."""
         return await self._run(_api.category_page("other", page))
 
     async def get_editorials(
@@ -167,102 +138,52 @@ class AsyncLoadingApiClient:
         post_type: str | None = None,
         sort: str | None = None,
     ) -> dict[str, Any]:
-        """Retruns threads from a specific page in the texts category
+        """Return one page of editorials from the texts category.
 
-        :param page: Texts forum page (**optional**)
-        :type page: int
-        :param post_type: Articles can be of post_type: "review", "opinion", "update", "podcast",
-            or "conversation" (**optional**)
-        :type post_type: str
-        :param sort: Sort the returned threads by date by the default, but if "title" is used as
-            a parameter it's sorted by thread title instead. (**optional**)
-        :type sort: str
-        :rtype: dict
+        The default ``post_type`` is ``neRegular``. Other supported filters are
+        ``review``, ``opinion``, ``update``, ``podcast``, and ``conversation``.
+        Pass ``sort="title"`` to sort alphabetically. The default order is by date.
         """
         return await self._run(_api.category_page("texts", page, post_type, sort))
 
     async def create_post(self, thread_id: str, message: str) -> dict[str, Any]:
-        """Create new post in a thread
-
-        :param thread_id: Unique thread id
-        :type thread_id: str
-        :param message: Text that can be formatted with markdown that will be posted in the thread
-        :type message: str
-        :rtype: dict
-        """
+        """Post a Markdown reply to the thread."""
         return await self._run(_api.create_post(thread_id, message))
 
     async def edit_post(self, post_id: str, message: str) -> dict[str, Any]:
-        """Edit existing post in a thread
-
-        :param post_id: Unique post id
-        :type post_id: str
-        :param message: New text, that can be formatted with markdown,
-            that will replace the old message
-        :type message: str
-        :rtype: dict
-        """
+        """Replace a post's body with the supplied Markdown text."""
         return await self._run(_api.edit_post(post_id, message))
 
     async def create_thread(
         self, title: str, message: str, category_name: str, post_type: str | None = None
     ) -> dict[str, Any]:
-        """Create new thread in one of the forum categories
+        """Create a thread in the ``games`` or ``other`` forum.
 
-        :param title: Thread title
-        :type title: str
-        :param message: Thread body that can be formatted with markdown
-        :type message: str
-        :param category_name: Forum category. Can be either "games" or "other".
-        :type category_name: str
-        :param post_type: Creates a "regular" thread by the default. (**optional**)
-        :rtype: dict
+        The message is the Markdown body. The default post type is ``regular``.
         """
         return await self._run(
             _api.create_thread(title, message, category_name, post_type)
         )
 
     async def edit_thread(self, thread_id: str, message: str) -> dict[str, Any]:
-        """Edit existing thread
-
-        :param thread_id: Unique thread id
-        :type thread_id: str
-        :param message: New text, that can be formatted with markdown,
-            that will replace the old message
-        :type message: str
-        :rtype: dict
-        """
+        """Replace the thread's opening message with the supplied Markdown text."""
         return await self._run(_api.edit_thread(thread_id, message))
 
     async def get_about(self) -> dict[str, Any]:
-        """Get about page data
-
-        :rtype dict
-        """
+        """Return the site's editorial staff and moderators."""
         return await self._run(_api.get_about())
 
     async def get_socials(self) -> dict[str, Any]:
-        """Get social media links
-
-        :rtype dict
-        """
+        """Return the site's social media links."""
         return await self._run(_api.get_socials())
 
     async def get_total_thread_pages(self, thread_id: str) -> int | dict[str, Any]:
-        """Returns total pages of a thread.
-
-        :param thread_id: Unique thread id
-        :type thread_id: str
-        :returns: The page count, or the error dictionary returned by get_thread.
-        :rtype: int | dict
-        """
+        """Return the thread's page count or the error dictionary from ``get_thread()``."""
         return await self._run(_api.get_total_thread_pages(thread_id))
 
     async def get_total_category_pages(self, category: str) -> dict[str, Any]:
-        """Returns total pages of a forum category.
+        """Count pages in the ``games``, ``other``, or ``texts`` category.
 
-        :param category: Category name. Can be games, other, or texts
-        :type category: str
-        :rtype: dict
+        On success, ``response["data"]["total_pages"]`` contains the count.
         """
         return await self._run(_api.get_total_category_pages(category))

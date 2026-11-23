@@ -1,7 +1,7 @@
-loading_sdk
-===========
+API reference
+=============
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    loading_sdk

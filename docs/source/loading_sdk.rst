@@ -1,29 +1,18 @@
-loading\_sdk package
-====================
+Loading.se clients
+==================
 
-Submodules
-----------
+Synchronous client
+------------------
 
-loading\_sdk.api module
------------------------
-
-.. automodule:: loading_sdk.sync_api.client
+.. autoclass:: loading_sdk.LoadingApiClient
    :members:
-   :undoc-members:
-   :show-inheritance:
 
-loading\_sdk.async_api module
------------------------------
+Asynchronous client
+-------------------
 
-.. automodule:: loading_sdk.async_api.client
+.. autofunction:: loading_sdk.AsyncLoadingApiClient
+
+The factory returns an instance of the following class.
+
+.. autoclass:: loading_sdk.async_api.client.AsyncLoadingApiClient
    :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: loading_sdk
-   :members:
-   :undoc-members:
-   :show-inheritance:

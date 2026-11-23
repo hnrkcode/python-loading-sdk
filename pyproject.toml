@@ -23,6 +23,7 @@ dependencies = [
 ]
 
 [project.urls]
+Documentation = "https://github.com/hnrkcode/python-loading-sdk/blob/main/README.md#usage"
 Repository = "https://github.com/hnrkcode/python-loading-sdk"
 Changelog = "https://github.com/hnrkcode/python-loading-sdk/blob/main/CHANGELOG.md"
 Issues = "https://github.com/hnrkcode/python-loading-sdk/issues"

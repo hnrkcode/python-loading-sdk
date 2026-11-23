@@ -1,7 +1,7 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-from requests.cookies import RequestsCookieJar
+import httpx
 
 from loading_sdk import LoadingApiClient
 
@@ -9,17 +9,19 @@ from loading_sdk import LoadingApiClient
 class TestLoadingApiClient(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.cookie_jar = RequestsCookieJar()
+        cls.cookie_jar = httpx.Cookies()
         cls.cookie_jar.set("jwt", "placeholder_token_1")
         cls.cookie_jar.set("refreshToken", "placeholder_token_2")
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_authenticate_success(self, mock_requests):
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.cookies = self.cookie_jar
-
-        mock_requests.post.return_value = mock_response
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_authenticate_success(self, mock_transport):
+        mock_transport.return_value = httpx.Response(
+            200,
+            headers=[
+                ("Set-Cookie", f"{key}={value}; Path=/")
+                for key, value in self.cookie_jar.items()
+            ],
+        )
 
         api = LoadingApiClient("test@email.com", "password")
 
@@ -31,18 +33,16 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response.get("cookies"), self.cookie_jar)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_authenticate_failure_incorrect_email_or_password(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_authenticate_failure_incorrect_email_or_password(self, mock_transport):
         status_code = 401
         expected_response = {
             "code": status_code,
             "message": "Incorrect email or password",
         }
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient("incorrect@email.com", "incorrect_password")
 
@@ -55,8 +55,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 401)
         self.assertEqual(response.get("message"), "Incorrect email or password")
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_authenticate_failure_invalid_email(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_authenticate_failure_invalid_email(self, mock_transport):
         status_code = 400
         expected_response = {
             "code": status_code,
@@ -70,11 +70,9 @@ class TestLoadingApiClient(unittest.TestCase):
                 }
             ],
         }
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient("invalid_email_address", "password")
 
@@ -87,8 +85,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 400)
         self.assertEqual(response.get("message"), "Validation error")
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_authenticate_failure_empty_values(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_authenticate_failure_empty_values(self, mock_transport):
         status_code = 400
         expected_response = {
             "code": status_code,
@@ -111,11 +109,9 @@ class TestLoadingApiClient(unittest.TestCase):
                 },
             ],
         }
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient("", "")
 
@@ -129,8 +125,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "Validation error")
 
     @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_profile_success(self, mock_requests, mock_authenticate):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_profile_success(self, mock_transport, mock_authenticate):
         status_code = 200
         expected_response = {
             "id": "000000000000000000000000",
@@ -140,10 +136,9 @@ class TestLoadingApiClient(unittest.TestCase):
             "createdAt": "2022-01-01T00:00:00.000Z",
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
         mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
         api = LoadingApiClient("test@email.com", "password")
@@ -155,16 +150,14 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "OK")
         self.assertDictEqual(response["data"], expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_profile_failure(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_profile_failure(self, mock_transport):
         status_code = 401
         expected_response = {"code": status_code, "message": "No auth token"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_profile()
@@ -173,8 +166,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 401)
         self.assertEqual(response.get("message"), "No auth token")
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_search_success(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_search_success(self, mock_transport):
         expected_response = {
             "posts": [
                 {
@@ -202,10 +195,7 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(200, json=expected_response)
 
         api = LoadingApiClient()
         response = api.search("zGwszApFEcY")
@@ -214,14 +204,11 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_search_success_no_results(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_search_success_no_results(self, mock_transport):
         expected_response = {"posts": [], "users": []}
 
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(200, json=expected_response)
 
         api = LoadingApiClient()
         response = api.search("zGwszApFEcYesf")
@@ -230,8 +217,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "No results")
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_search_failure_empty_query(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_search_failure_empty_query(self, mock_transport):
         status_code = 400
         expected_response = {
             "code": status_code,
@@ -246,10 +233,9 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.search("")
@@ -258,16 +244,14 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "Validation error")
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_post_failure_empty_post_id(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_post_failure_empty_post_id(self, mock_transport):
         expected_response = {
             "code": 404,
             "message": '"post_id" is not allowed to be empty',
         }
 
-        mock_response = MagicMock()
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(200, json=expected_response)
 
         api = LoadingApiClient()
         response = api.get_post("")
@@ -278,14 +262,11 @@ class TestLoadingApiClient(unittest.TestCase):
         )
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_post_failure_post_does_not_exist(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_post_failure_post_does_not_exist(self, mock_transport):
         expected_response = {"code": 404, "message": "Post does not exist"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = 404
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(404, json=expected_response)
 
         api = LoadingApiClient()
         response = api.get_post("none_existing_post_id")
@@ -294,8 +275,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "Post does not exist")
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_post_success(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_post_success(self, mock_transport):
         status_code = 200
         expected_response = {
             "posts": [
@@ -322,10 +303,9 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_post("none_existing_post_id")
@@ -334,8 +314,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_thread_success(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_thread_success(self, mock_transport):
         status_code = 200
         expected_response = {
             "posts": [
@@ -365,10 +345,9 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_thread("5f9e4e8c2c32e2001ed17170")
@@ -391,18 +370,15 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "OK")
         self.assertEqual(response.get("data"), expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_thread_failure_empty_thread_id(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_thread_failure_empty_thread_id(self, mock_transport):
         status_code = 404
         expected_response = {
             "code": status_code,
             "message": '"thread_id" is not allowed to be empty',
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = None
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(status_code, json=None)
 
         api = LoadingApiClient()
         response = api.get_thread("")
@@ -410,8 +386,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 404)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_thread_failure_not_a_thread_id(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_thread_failure_not_a_thread_id(self, mock_transport):
         status_code = 200
         expected_response = {
             "code": status_code,
@@ -442,10 +418,7 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = regular_post
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(status_code, json=regular_post)
 
         api = LoadingApiClient()
         response = api.get_thread("609ef4ee90c3d5001e889c5a")
@@ -453,15 +426,14 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_thread_failure_does_not_exist(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_thread_failure_does_not_exist(self, mock_transport):
         status_code = 404
         expected_response = {"code": status_code, "message": "Post does not exist"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_thread("this_id_does_not_exist")
@@ -469,8 +441,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 404)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_thread_failure_page_too_low(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_thread_failure_page_too_low(self, mock_transport):
         status_code = 200
         expected_response = {
             "code": 200,
@@ -478,36 +450,36 @@ class TestLoadingApiClient(unittest.TestCase):
             "data": {"posts": [], "users": []},
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = {
-            "posts": [
-                {
-                    "id": "5f9e4e8c2c32e2001ed17170",
-                    "title": "Spelmusik samplad i låtar",
-                    "body": "Har ni upptäckt några samples från spelmusik när ni suttit och lyssnat på ''vanlig'' musik?\n\nDela med er av era upptäckter!\n\nBörjar med en låt från den gamla fjortisfavoriten Byz, Byz - Respekt. Har inte kunnat säkerställa det men visst måste väl det vara ett sample av Mike Tyson's Punch-Out! - Fight Theme https://youtu.be/VE8vKLEK6A8 ?\nhttps://youtu.be/EnBHwl8-bf4\nÄr det även ljudeffekter från Link där vid 02:32, om jag hör rätt?\n\nArmy of the Pharaohs - Bloody Tears. Sample taget från Castlevania II. \nDet tog nästan pinsamt nog några genomlyssningar innan det klickade, låtarna har ju för fan samma namn också haha!\nhttps://youtu.be/rrJbpJwmQJc\nhttp://youtu.be/e2oZtvjg5oA\n\nHeavy Metal Kings - Splatterfest. Sample taget från första Medal of Honor - Rjuken Sabotage. Denna var svårare, fick bara en känsla att den var från ett spel och sökte då upp svaret.\nhttps://youtu.be/1VuVyfmPUd8\nhttps://youtu.be/tdWt-wl-wuw\n",
-                    "category": "other",
-                    "postType": "regular",
-                    "createdAt": "2020-11-01T05:58:36.722Z",
-                    "updatedAt": "2020-11-01T06:02:59.322Z",
-                    "userId": "5bb80ac88fef22001d902d69",
-                    "replies": 0,
-                    "edits": 5,
-                    "lastEdit": "2020-11-01T06:02:59.321Z",
-                }
-            ],
-            "users": [
-                {
-                    "id": "5bb80ac88fef22001d902d69",
-                    "name": "Twiggy",
-                    "picture": "045d72f0-ce02-4613-99f1-c01c3b685cf4.jpg",
-                    "role": "user",
-                    "createdAt": "2018-10-06T01:07:20.176Z",
-                    "status": "active",
-                }
-            ],
-        }
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code,
+            json={
+                "posts": [
+                    {
+                        "id": "5f9e4e8c2c32e2001ed17170",
+                        "title": "Spelmusik samplad i låtar",
+                        "body": "Har ni upptäckt några samples från spelmusik när ni suttit och lyssnat på ''vanlig'' musik?\n\nDela med er av era upptäckter!\n\nBörjar med en låt från den gamla fjortisfavoriten Byz, Byz - Respekt. Har inte kunnat säkerställa det men visst måste väl det vara ett sample av Mike Tyson's Punch-Out! - Fight Theme https://youtu.be/VE8vKLEK6A8 ?\nhttps://youtu.be/EnBHwl8-bf4\nÄr det även ljudeffekter från Link där vid 02:32, om jag hör rätt?\n\nArmy of the Pharaohs - Bloody Tears. Sample taget från Castlevania II. \nDet tog nästan pinsamt nog några genomlyssningar innan det klickade, låtarna har ju för fan samma namn också haha!\nhttps://youtu.be/rrJbpJwmQJc\nhttp://youtu.be/e2oZtvjg5oA\n\nHeavy Metal Kings - Splatterfest. Sample taget från första Medal of Honor - Rjuken Sabotage. Denna var svårare, fick bara en känsla att den var från ett spel och sökte då upp svaret.\nhttps://youtu.be/1VuVyfmPUd8\nhttps://youtu.be/tdWt-wl-wuw\n",
+                        "category": "other",
+                        "postType": "regular",
+                        "createdAt": "2020-11-01T05:58:36.722Z",
+                        "updatedAt": "2020-11-01T06:02:59.322Z",
+                        "userId": "5bb80ac88fef22001d902d69",
+                        "replies": 0,
+                        "edits": 5,
+                        "lastEdit": "2020-11-01T06:02:59.321Z",
+                    }
+                ],
+                "users": [
+                    {
+                        "id": "5bb80ac88fef22001d902d69",
+                        "name": "Twiggy",
+                        "picture": "045d72f0-ce02-4613-99f1-c01c3b685cf4.jpg",
+                        "role": "user",
+                        "createdAt": "2018-10-06T01:07:20.176Z",
+                        "status": "active",
+                    }
+                ],
+            },
+        )
 
         api = LoadingApiClient()
         response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=-1)
@@ -515,8 +487,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_thread_failure_page_too_high(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_thread_failure_page_too_high(self, mock_transport):
         status_code = 200
         expected_response = {
             "code": 200,
@@ -524,36 +496,36 @@ class TestLoadingApiClient(unittest.TestCase):
             "data": {"posts": [], "users": []},
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = {
-            "posts": [
-                {
-                    "id": "5f9e4e8c2c32e2001ed17170",
-                    "title": "Spelmusik samplad i låtar",
-                    "body": "Har ni upptäckt några samples från spelmusik när ni suttit och lyssnat på ''vanlig'' musik?\n\nDela med er av era upptäckter!\n\nBörjar med en låt från den gamla fjortisfavoriten Byz, Byz - Respekt. Har inte kunnat säkerställa det men visst måste väl det vara ett sample av Mike Tyson's Punch-Out! - Fight Theme https://youtu.be/VE8vKLEK6A8 ?\nhttps://youtu.be/EnBHwl8-bf4\nÄr det även ljudeffekter från Link där vid 02:32, om jag hör rätt?\n\nArmy of the Pharaohs - Bloody Tears. Sample taget från Castlevania II. \nDet tog nästan pinsamt nog några genomlyssningar innan det klickade, låtarna har ju för fan samma namn också haha!\nhttps://youtu.be/rrJbpJwmQJc\nhttp://youtu.be/e2oZtvjg5oA\n\nHeavy Metal Kings - Splatterfest. Sample taget från första Medal of Honor - Rjuken Sabotage. Denna var svårare, fick bara en känsla att den var från ett spel och sökte då upp svaret.\nhttps://youtu.be/1VuVyfmPUd8\nhttps://youtu.be/tdWt-wl-wuw\n",
-                    "category": "other",
-                    "postType": "regular",
-                    "createdAt": "2020-11-01T05:58:36.722Z",
-                    "updatedAt": "2020-11-01T06:02:59.322Z",
-                    "userId": "5bb80ac88fef22001d902d69",
-                    "replies": 0,
-                    "edits": 5,
-                    "lastEdit": "2020-11-01T06:02:59.321Z",
-                }
-            ],
-            "users": [
-                {
-                    "id": "5bb80ac88fef22001d902d69",
-                    "name": "Twiggy",
-                    "picture": "045d72f0-ce02-4613-99f1-c01c3b685cf4.jpg",
-                    "role": "user",
-                    "createdAt": "2018-10-06T01:07:20.176Z",
-                    "status": "active",
-                }
-            ],
-        }
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code,
+            json={
+                "posts": [
+                    {
+                        "id": "5f9e4e8c2c32e2001ed17170",
+                        "title": "Spelmusik samplad i låtar",
+                        "body": "Har ni upptäckt några samples från spelmusik när ni suttit och lyssnat på ''vanlig'' musik?\n\nDela med er av era upptäckter!\n\nBörjar med en låt från den gamla fjortisfavoriten Byz, Byz - Respekt. Har inte kunnat säkerställa det men visst måste väl det vara ett sample av Mike Tyson's Punch-Out! - Fight Theme https://youtu.be/VE8vKLEK6A8 ?\nhttps://youtu.be/EnBHwl8-bf4\nÄr det även ljudeffekter från Link där vid 02:32, om jag hör rätt?\n\nArmy of the Pharaohs - Bloody Tears. Sample taget från Castlevania II. \nDet tog nästan pinsamt nog några genomlyssningar innan det klickade, låtarna har ju för fan samma namn också haha!\nhttps://youtu.be/rrJbpJwmQJc\nhttp://youtu.be/e2oZtvjg5oA\n\nHeavy Metal Kings - Splatterfest. Sample taget från första Medal of Honor - Rjuken Sabotage. Denna var svårare, fick bara en känsla att den var från ett spel och sökte då upp svaret.\nhttps://youtu.be/1VuVyfmPUd8\nhttps://youtu.be/tdWt-wl-wuw\n",
+                        "category": "other",
+                        "postType": "regular",
+                        "createdAt": "2020-11-01T05:58:36.722Z",
+                        "updatedAt": "2020-11-01T06:02:59.322Z",
+                        "userId": "5bb80ac88fef22001d902d69",
+                        "replies": 0,
+                        "edits": 5,
+                        "lastEdit": "2020-11-01T06:02:59.321Z",
+                    }
+                ],
+                "users": [
+                    {
+                        "id": "5bb80ac88fef22001d902d69",
+                        "name": "Twiggy",
+                        "picture": "045d72f0-ce02-4613-99f1-c01c3b685cf4.jpg",
+                        "role": "user",
+                        "createdAt": "2018-10-06T01:07:20.176Z",
+                        "status": "active",
+                    }
+                ],
+            },
+        )
 
         api = LoadingApiClient()
         response = api.get_thread("5f9e4e8c2c32e2001ed17170", page=2)
@@ -562,8 +534,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("message"), "Page number too high")
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_games_success(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_games_success(self, mock_transport):
         status_code = 200
         expected_response = {
             "posts": [
@@ -936,18 +908,17 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_games(page=91)
 
         self.assertDictEqual(response["data"], expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_games_failure_page_too_low(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_games_failure_page_too_low(self, mock_transport):
         status_code = 404
         expected_response = {
             "code": status_code,
@@ -955,18 +926,17 @@ class TestLoadingApiClient(unittest.TestCase):
             "data": {"posts": [], "users": []},
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_games(page=-1)
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_games_failure_page_too_high(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_games_failure_page_too_high(self, mock_transport):
         status_code = 404
         expected_response = {
             "code": status_code,
@@ -974,18 +944,17 @@ class TestLoadingApiClient(unittest.TestCase):
             "data": {"posts": [], "users": []},
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = {"posts": [], "users": []}
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json={"posts": [], "users": []}
+        )
 
         api = LoadingApiClient()
         response = api.get_games(page=999)
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_other_success(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_other_success(self, mock_transport):
         status_code = 200
         expected_response = {
             "posts": [
@@ -1187,10 +1156,9 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_games(page=91)
@@ -1202,8 +1170,8 @@ class TestLoadingApiClient(unittest.TestCase):
         for thread in threads:
             self.assertEqual(thread.get("category"), "other")
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_other_failure_page_too_low(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_other_failure_page_too_low(self, mock_transport):
         status_code = 404
         expected_response = {
             "code": status_code,
@@ -1211,18 +1179,17 @@ class TestLoadingApiClient(unittest.TestCase):
             "data": {"posts": [], "users": []},
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_other(page=-1)
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_other_failure_page_too_high(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_other_failure_page_too_high(self, mock_transport):
         status_code = 404
         expected_response = {
             "code": status_code,
@@ -1230,18 +1197,17 @@ class TestLoadingApiClient(unittest.TestCase):
             "data": {"posts": [], "users": []},
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = {"posts": [], "users": []}
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json={"posts": [], "users": []}
+        )
 
         api = LoadingApiClient()
         response = api.get_other(page=999)
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_editorials_success(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_editorials_success(self, mock_transport):
         status_code = 200
         expected_response = {
             "posts": [
@@ -1530,10 +1496,9 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.get_editorials(page=1, post_type="update", sort="title")
@@ -1547,8 +1512,8 @@ class TestLoadingApiClient(unittest.TestCase):
         for thread in threads:
             self.assertEqual(thread.get("postType"), "update")
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_editorials_failure_page_too_low(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_editorials_failure_page_too_low(self, mock_transport):
         status_code = 404
         expected_response = {
             "code": status_code,
@@ -1556,10 +1521,9 @@ class TestLoadingApiClient(unittest.TestCase):
             "data": {"posts": [], "users": []},
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = response = api.get_editorials(
@@ -1570,8 +1534,8 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertDictEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_get_editorials_failure_page_too_high(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_get_editorials_failure_page_too_high(self, mock_transport):
         status_code = 404
         expected_response = {
             "code": status_code,
@@ -1579,10 +1543,9 @@ class TestLoadingApiClient(unittest.TestCase):
             "data": {"posts": [], "users": []},
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = {"posts": [], "users": []}
-        mock_requests.get.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json={"posts": [], "users": []}
+        )
 
         api = LoadingApiClient()
         response = response = api.get_editorials(
@@ -1594,8 +1557,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertDictEqual(response, expected_response)
 
     @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_edit_post_success(self, mock_requests, mock_authenticate):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_edit_post_success(self, mock_transport, mock_authenticate):
         status_code = 200
         expected_response = {
             "id": "000000000000000000000000",
@@ -1610,10 +1573,9 @@ class TestLoadingApiClient(unittest.TestCase):
             "lastEdit": "2022-01-02T00:00:00.000Z",
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.patch.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
         mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
         # Edit post.
@@ -1640,15 +1602,14 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("code"), 200)
         self.assertDictEqual(response["data"], expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_edit_post_failure_no_auth_token(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_edit_post_failure_no_auth_token(self, mock_transport):
         status_code = 401
         expected_response = {"code": status_code, "message": "No auth token"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.patch.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         # Edit post.
         api = LoadingApiClient()
@@ -1665,15 +1626,14 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_edit_post_failure_post_does_not_exist(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_edit_post_failure_post_does_not_exist(self, mock_transport):
         status_code = 404
         expected_response = {"code": status_code, "message": "Post does not exist"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.patch.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         # Edit post.
         api = LoadingApiClient()
@@ -1735,17 +1695,16 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response, expected_response)
 
     @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.sync_api.client.requests")
+    @patch("httpx.HTTPTransport.handle_request")
     def test_create_post_failure_thread_id_does_not_exist(
-        self, mock_requests, mock_authenticate
+        self, mock_transport, mock_authenticate
     ):
         status_code = 404
         expected_response = {"code": status_code, "message": "Post does not exist"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
         mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
         api = LoadingApiClient("test@email.com", "password")
@@ -1758,15 +1717,14 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(api._cookies, self.cookie_jar)
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_create_post_failure_no_auth_token(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_create_post_failure_no_auth_token(self, mock_transport):
         status_code = 401
         expected_response = {"code": status_code, "message": "No auth token"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.create_post(
@@ -1776,8 +1734,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response, expected_response)
 
     @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_create_post_success(self, mock_requests, mock_authenticate):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_create_post_success(self, mock_transport, mock_authenticate):
         status_code = 201
         expected_response = {
             "id": "000000000000000000000000",
@@ -1790,10 +1748,9 @@ class TestLoadingApiClient(unittest.TestCase):
             "replies": 0,
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
         mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
         api = LoadingApiClient("test@email.com", "password")
@@ -1808,8 +1765,8 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response.get("data"), expected_response)
 
     @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_create_thread_success(self, mock_requests, mock_authenticate):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_create_thread_success(self, mock_transport, mock_authenticate):
         status_code = 201
         expected_response = {
             "id": "000000000000000000000000",
@@ -1822,10 +1779,9 @@ class TestLoadingApiClient(unittest.TestCase):
             "replies": 0,
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
         mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
         api = LoadingApiClient("test@email.com", "password")
@@ -1866,9 +1822,9 @@ class TestLoadingApiClient(unittest.TestCase):
         self.assertEqual(response, expected_response)
 
     @patch("loading_sdk.sync_api.LoadingApiClient._authenticate")
-    @patch("loading_sdk.sync_api.client.requests")
+    @patch("httpx.HTTPTransport.handle_request")
     def test_create_thread_failure_empty_title_or_message(
-        self, mock_requests, mock_authenticate
+        self, mock_transport, mock_authenticate
     ):
         status_code = 400
         expected_response = {
@@ -1890,10 +1846,9 @@ class TestLoadingApiClient(unittest.TestCase):
             ],
         }
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
         mock_authenticate.return_value = {"code": 200, "cookies": self.cookie_jar}
 
         api = LoadingApiClient("test@email.com", "password")
@@ -1905,15 +1860,14 @@ class TestLoadingApiClient(unittest.TestCase):
 
         self.assertEqual(response, expected_response)
 
-    @patch("loading_sdk.sync_api.client.requests")
-    def test_create_thread_failure_no_auth_token(self, mock_requests):
+    @patch("httpx.HTTPTransport.handle_request")
+    def test_create_thread_failure_no_auth_token(self, mock_transport):
         status_code = 401
         expected_response = {"code": status_code, "message": "No auth token"}
 
-        mock_response = MagicMock()
-        mock_response.status_code = status_code
-        mock_response.json.return_value = expected_response
-        mock_requests.post.return_value = mock_response
+        mock_transport.return_value = httpx.Response(
+            status_code, json=expected_response
+        )
 
         api = LoadingApiClient()
         response = api.create_thread(

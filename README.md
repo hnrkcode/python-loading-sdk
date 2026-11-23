@@ -46,7 +46,7 @@ client = LoadingApiClient(email="your@email.com", password="your_password")
 response = client.get_profile()
 ```
 
-It can also be used asyncrounously:
+The async factory is awaitable.
 
 ```python
 from loading_sdk import AsyncLoadingApiClient
@@ -55,6 +55,28 @@ client = await AsyncLoadingApiClient(email="your@email.com", password="your_pass
 
 response = await client.get_profile()
 ```
+
+### Connection ownership and errors
+
+Ordinary calls open and close a temporary HTTPX client for each SDK operation. Pagination and extraction reuse that connection pool across their requests. Login cookies stay with the SDK instance between operations.
+
+A context manager shares one pool across multiple operations.
+
+```python
+with LoadingApiClient() as client:
+    games = client.get_games()
+    socials = client.get_socials()
+
+async with await AsyncLoadingApiClient() as client:
+    games = await client.get_games()
+    socials = await client.get_socials()
+```
+
+Both factories accept a keyword-only `transport` for custom HTTPX transports, including `httpx.MockTransport`. Supplying a transport gives the SDK ownership and enables pooling immediately. Use the context manager or call `close()` / `await aclose()` to release it. Each SDK instance needs its own transport.
+
+The SDK follows redirects. It sends login cookies only on authenticated API calls, respecting the API origin and cookie domain, path, and security attributes. A redirect that would replay an authenticated form to another origin raises `httpx.RequestError`.
+
+Sync requests default to a 10-second timeout per network phase. Async requests default to a 300-second total deadline per request, including redirects, with a 30-second connection timeout. Set `timeout` in seconds on either factory to change the deadline or phase limit. Network failures propagate as HTTPX exceptions, including `httpx.TimeoutException` and `httpx.ConnectError`. API error responses retain their SDK dictionary format.
 
 ## Examples
 

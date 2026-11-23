@@ -1,105 +1,100 @@
-import math
-from typing import Any
+from collections.abc import Generator
+from contextlib import contextmanager
+from typing import Any, Self
 
-import requests
+import httpx
 
-from loading_sdk.settings import (
-    API_URL,
-    API_VERSION,
-    EDITORIAL_POST_TYPES,
-    EDITORIAL_SORT,
-    FORUM_CATEGORIES,
-    POSTS_PER_PAGE,
-    USER_AGENT,
-)
-from loading_sdk.sync_api.extractors import extract_data
+from loading_sdk import _api, _http
+from loading_sdk._api import Operation, T
 
 
 class LoadingApiClient:
-    """A client that allows python apps to easily communicate with the loading forums web api.
+    """Synchronous Loading.se client. Use a context manager to reuse connections."""
 
-    Some methods can be used anonymously, while others require the client to be authenticated
-    with user credentials.
-
-    :param email: users email address (**optional**)
-    :type email: str
-    :param password: users password (**optional**)
-    :type password: str
-    """
-
-    def __init__(self, email: str | None = None, password: str | None = None) -> None:
-        self._cookies = None
-
+    def __init__(
+        self,
+        email: str | None = None,
+        password: str | None = None,
+        *,
+        transport: httpx.BaseTransport | None = None,
+        timeout: float = 10.0,
+    ) -> None:
+        self._timeout = timeout
+        self._transport = transport
+        self._client = self._new_client() if transport is not None else None
+        self._closed = False
+        self._entered = False
+        self._cookies: httpx.Cookies | None = None
         if email and password:
-            response = self._authenticate(email, password)
+            try:
+                login = self._authenticate(email, password)
+                if login.get("code") == 200:
+                    self._cookies = login.get("cookies")
+            except BaseException:
+                self.close()
+                raise
 
-            if response.get("code") == 200:
-                self._cookies = response.get("cookies")
+    def _new_client(self) -> httpx.Client:
+        return httpx.Client(
+            transport=self._transport,
+            timeout=self._timeout,
+            follow_redirects=True,
+            event_hooks={
+                "request": [_http.before_send],
+                "response": [_http.after_receive],
+            },
+        )
+
+    def __enter__(self) -> Self:
+        if self._closed or self._entered:
+            raise RuntimeError("SDK client is closed or already entered")
+        if self._client is None:
+            self._client = self._new_client()
+        self._entered = True
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
+        self.close()
+
+    def close(self) -> None:
+        """Close the SDK-owned connection pool and any supplied transport."""
+        if not self._closed and self._client is not None:
+            self._client.close()
+        self._closed = True
+
+    @contextmanager
+    def _session(self) -> Generator[httpx.Client, None, None]:
+        if self._client is not None:
+            yield self._client
+        else:
+            with self._new_client() as client:
+                yield client
+
+    def _run(self, operation: Operation[T]) -> T:
+        if self._closed:
+            raise RuntimeError("SDK client is closed")
+        try:
+            req = next(operation)
+        except StopIteration as done:
+            return done.value
+        with self._session() as client:
+            while True:
+                _http.prepare(req, self._cookies)
+                response = client.send(req)
+                try:
+                    req = operation.send(response)
+                except StopIteration as done:
+                    return done.value
 
     def _authenticate(self, email: str, password: str) -> dict[str, Any]:
-        url = f"{API_URL}/{API_VERSION}/auth/login"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-        data = {
-            "email": email,
-            "password": password,
-        }
-        response = requests.post(url, headers=headers, data=data, timeout=10)
-
-        if response.status_code == 200:
-            return {"code": 200, "cookies": response.cookies}
-
-        return response.json()
-
-    def _get_threads_in_forum_category(
-        self, category_name: str, page: int | None
-    ) -> dict[str, Any]:
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {"User-Agent": USER_AGENT, category_name: category_name}
-
-        # Chooses a specific page instead of the first page which is the default page.
-        if page and page > 1:
-            headers["page"] = str(page)
-
-        # Doing this checks to make sure it only return data from a page that exists.
-        if page and page < 1:
-            return {
-                "code": 404,
-                "message": "Page number too low",
-                "data": {"posts": [], "users": []},
-            }
-
-        response = requests.get(url, headers=headers, timeout=10)
-        data = response.json()
-
-        # Page out of range.
-        if not data["posts"]:
-            return {"code": 404, "message": "Page number too high", "data": data}
-
-        return {"code": 200, "message": "OK", "data": data}
+        return self._run(_api.authenticate(email, password))
 
     def get_profile(self) -> dict[str, Any]:
         """Returns authenticated users profile data
 
         :rtype: dict
         """
-
-        url = f"{API_URL}/{API_VERSION}/users/profile"
-        headers = {
-            "User-Agent": USER_AGENT,
-        }
-        response = requests.get(url, headers=headers, cookies=self._cookies, timeout=10)
-
-        if response.status_code == 200:
-            return {
-                "code": response.status_code,
-                "message": "OK",
-                "data": response.json(),
-            }
-
-        return response.json()
+        return self._run(_api.get_profile())
 
     def search(self, query: str) -> dict[str, Any]:
         """Returns posts that matches the query
@@ -108,28 +103,7 @@ class LoadingApiClient:
         :type query: str
         :rtype: dict
         """
-
-        url = f"{API_URL}/{API_VERSION}/search/"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-        }
-        response = requests.post(
-            url,
-            headers=headers,
-            data={"query": query},
-            timeout=10,
-        )
-        data = response.json()
-
-        if response.status_code == 200:
-            return {
-                "code": response.status_code,
-                "message": "OK" if len(data["posts"]) else "No results",
-                "data": data,
-            }
-
-        return data
+        return self._run(_api.search(query))
 
     def get_post(self, post_id: str) -> dict[str, Any]:
         """Returns a specific post
@@ -138,25 +112,7 @@ class LoadingApiClient:
         :type post_id: str
         :rtype: dict
         """
-
-        if not post_id:
-            return {"code": 404, "message": '"post_id" is not allowed to be empty'}
-
-        url = f"{API_URL}/{API_VERSION}/posts/{post_id}"
-        headers = {
-            "User-Agent": USER_AGENT,
-        }
-
-        response = requests.get(url, headers=headers, timeout=10)
-
-        if response.status_code == 200:
-            return {
-                "code": response.status_code,
-                "message": "OK",
-                "data": response.json(),
-            }
-
-        return response.json()
+        return self._run(_api.get_post(post_id))
 
     def get_thread(self, thread_id: str, page: int | None = None) -> dict[str, Any]:
         """Returns all posts on a specific page from a specific thread
@@ -167,61 +123,7 @@ class LoadingApiClient:
         :type page: int
         :rtype: dict
         """
-
-        if not thread_id:
-            return {"code": 404, "message": '"thread_id" is not allowed to be empty'}
-
-        url = f"{API_URL}/{API_VERSION}/posts/{thread_id}"
-        headers = {"User-Agent": USER_AGENT}
-
-        # Chooses a specific page instead of the first page which is the default page.
-        if page and page > 1:
-            headers["page"] = str(page)
-
-        response = requests.get(url, headers=headers, timeout=10)
-
-        if response.status_code != 200:
-            return response.json()
-
-        data = response.json()
-
-        if "title" not in data["posts"][-1]:
-            return {
-                "code": response.status_code,
-                "message": "Exists, but was not a thread id",
-            }
-
-        # Doing this checks to make sure it only return data from a page that exists.
-        if page:
-            replies = data["posts"][-1]["replies"]
-            pages = math.ceil(replies / POSTS_PER_PAGE)
-
-            # There is always atleast one page.
-            if pages == 0:
-                pages = 1
-
-            # Page is out of range.
-            if page < 1:
-                return {
-                    "code": response.status_code,
-                    "message": "Page number too low",
-                    "data": {"posts": [], "users": []},
-                }
-
-            if page > pages:
-                return {
-                    "code": response.status_code,
-                    "message": "Page number too high",
-                    "data": {"posts": [], "users": []},
-                }
-
-        successful_response = {
-            "code": response.status_code,
-            "message": "OK",
-            "data": data,
-        }
-
-        return successful_response
+        return self._run(_api.get_thread(thread_id, page))
 
     def get_games(self, page: int | None = None) -> dict[str, Any]:
         """Retruns threads from a specific page in the game category
@@ -230,11 +132,7 @@ class LoadingApiClient:
         :type page: int
         :rtype: dict
         """
-
-        category_name = "games"
-        thread_data = self._get_threads_in_forum_category(category_name, page)
-
-        return thread_data
+        return self._run(_api.category_page("games", page))
 
     def get_other(self, page: int | None = None) -> dict[str, Any]:
         """Retruns threads from a specific page in the other category
@@ -243,11 +141,7 @@ class LoadingApiClient:
         :type page: int
         :rtype: dict
         """
-
-        category_name = "other"
-        thread_data = self._get_threads_in_forum_category(category_name, page)
-
-        return thread_data
+        return self._run(_api.category_page("other", page))
 
     def get_editorials(
         self,
@@ -267,40 +161,7 @@ class LoadingApiClient:
         :type sort: str
         :rtype: dict
         """
-
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "texts": "texts",
-            "post-type": "neRegular",
-        }
-
-        if post_type and post_type in EDITORIAL_POST_TYPES:
-            headers["post-type"] = post_type
-
-        if sort and sort in EDITORIAL_SORT:
-            headers["sort"] = sort
-
-        # Chooses a specific page instead of the first page which is the default page.
-        if page and page > 1:
-            headers["page"] = str(page)
-
-        # Doing this checks to make sure it only return data from a page that exists.
-        if page and page < 1:
-            return {
-                "code": 404,
-                "message": "Page number too low",
-                "data": {"posts": [], "users": []},
-            }
-
-        response = requests.get(url, headers=headers, timeout=10)
-        data = response.json()
-
-        # Page out of range.
-        if not data["posts"]:
-            return {"code": 404, "message": "Page number too high", "data": data}
-
-        return {"code": 200, "message": "OK", "data": data}
+        return self._run(_api.category_page("texts", page, post_type, sort))
 
     def create_post(self, thread_id: str, message: str) -> dict[str, Any]:
         """Create new post in a thread
@@ -311,41 +172,7 @@ class LoadingApiClient:
         :type message: str
         :rtype: dict
         """
-
-        if not thread_id:
-            return {"code": 400, "message": '"thread_id" is not allowed to be empty'}
-
-        url = f"{API_URL}/{API_VERSION}/posts/{thread_id}"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-        data = {"body": message}
-        response = requests.post(
-            url,
-            headers=headers,
-            data=data,
-            cookies=self._cookies,
-            timeout=10,
-        )
-
-        # Has no auth token.
-        if response.status_code == 401:
-            return response.json()
-
-        # Post id doesn't exist.
-        if response.status_code == 404:
-            return response.json()
-
-        if response.status_code == 201:
-            return {
-                "code": response.status_code,
-                "message": "Post created",
-                "data": response.json(),
-            }
-
-        # Handle any other unknown status code.
-        return response.json()
+        return self._run(_api.create_post(thread_id, message))
 
     def edit_post(self, post_id: str, message: str) -> dict[str, Any]:
         """Edit existing post in a thread
@@ -357,40 +184,7 @@ class LoadingApiClient:
         :type message: str
         :rtype: dict
         """
-        if not message:
-            return {"code": 400, "message": '"message" is not allowed to be empty'}
-
-        url = f"{API_URL}/{API_VERSION}/posts/{post_id}"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-        data = {"body": message}
-        response = requests.patch(
-            url,
-            headers=headers,
-            data=data,
-            cookies=self._cookies,
-            timeout=10,
-        )
-
-        # Has no auth token.
-        if response.status_code == 401:
-            return response.json()
-
-        # Post id doesn't exist.
-        if response.status_code == 404:
-            return response.json()
-
-        if response.status_code == 200:
-            return {
-                "code": response.status_code,
-                "message": "Post updated",
-                "data": response.json(),
-            }
-
-        # Handle any other unknown status code.
-        return response.json()
+        return self._run(_api.edit_post(post_id, message))
 
     def create_thread(
         self, title: str, message: str, category_name: str, post_type: str | None = None
@@ -406,51 +200,7 @@ class LoadingApiClient:
         :param post_type: Creates a "regular" thread by the default. (**optional**)
         :rtype: dict
         """
-        if category_name not in ["games", "other"]:
-            return {"code": 400, "message": "Invalid forum category"}
-
-        if post_type and post_type not in EDITORIAL_POST_TYPES:
-            return {"code": 400, "message": "Invalid post_type"}
-
-        if not post_type:
-            post_type = "regular"
-
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-        data = {
-            "category": category_name,
-            "postType": post_type,
-            "title": title,
-            "body": message,
-        }
-        response = requests.post(
-            url,
-            headers=headers,
-            data=data,
-            cookies=self._cookies,
-            timeout=10,
-        )
-
-        # Validation errors. Happens when title or message is empty. Possibly in other cases too.
-        if response.status_code == 400:
-            return response.json()
-
-        # No auth token.
-        if response.status_code == 401:
-            return response.json()
-
-        if response.status_code == 201:
-            return {
-                "code": response.status_code,
-                "message": "Thread created",
-                "data": response.json(),
-            }
-
-        # Handle any other unknown status code.
-        return response.json()
+        return self._run(_api.create_thread(title, message, category_name, post_type))
 
     def edit_thread(self, thread_id: str, message: str) -> dict[str, Any]:
         """Edit existing thread
@@ -462,38 +212,21 @@ class LoadingApiClient:
         :type message: str
         :rtype: dict
         """
-
-        thread_data = self.edit_post(thread_id, message)
-
-        if thread_data["code"] == 200:
-            thread_data["message"] = "Thread updated"
-
-        return thread_data
+        return self._run(_api.edit_thread(thread_id, message))
 
     def get_about(self) -> dict[str, Any]:
         """Get about page data
 
         :rtype dict
         """
-        data = extract_data("about")
-
-        if not data:
-            return {"code": 404, "message": "No data found", "data": None}
-
-        return {"code": 200, "message": "OK", "data": data}
+        return self._run(_api.get_about())
 
     def get_socials(self) -> dict[str, Any]:
         """Get social media links
 
         :rtype dict
         """
-
-        data = extract_data("socials")
-
-        if not data:
-            return {"code": 404, "message": "No results found", "data": None}
-
-        return {"code": 200, "message": "OK", "data": data}
+        return self._run(_api.get_socials())
 
     def get_total_thread_pages(self, thread_id: str) -> int | dict[str, Any]:
         """Returns total pages of a thread.
@@ -503,17 +236,7 @@ class LoadingApiClient:
         :returns: The page count, or the error dictionary returned by get_thread.
         :rtype: int | dict
         """
-
-        response = self.get_thread(thread_id)
-
-        if response["code"] != 200 or "data" not in response:
-            return response
-
-        thread_start = response["data"]["posts"][-1]
-        replies = max(thread_start["replies"], 1)
-        pages = math.ceil(replies / POSTS_PER_PAGE)
-
-        return pages
+        return self._run(_api.get_total_thread_pages(thread_id))
 
     def get_total_category_pages(self, category: str) -> dict[str, Any]:
         """Returns total pages of a forum category.
@@ -522,49 +245,4 @@ class LoadingApiClient:
         :type category: str
         :rtype: dict
         """
-
-        if category not in FORUM_CATEGORIES:
-            return {"code": 404, "message": "Invalid category", "data": None}
-
-        working_page = 0
-        current_page = 1
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "page": str(current_page),
-            category: category,
-        }
-
-        if category == "texts":
-            headers["post-type"] = "neRegular"
-
-        # Double current page until no results are returned
-        # then we know all pages after that won't work either.
-        while True:
-            headers["page"] = str(current_page)
-            response = requests.get(url, headers=headers, timeout=10)
-            data = response.json()
-
-            if not data["posts"]:
-                break
-
-            working_page = current_page
-            current_page *= 2
-
-        while current_page - working_page > 1:
-            page = (working_page + current_page) // 2
-            headers["page"] = str(page)
-
-            response = requests.get(url, headers=headers, timeout=10)
-            data = response.json()
-
-            if data["posts"]:
-                working_page = page
-            else:
-                current_page = page
-
-        return {
-            "code": 200,
-            "message": "OK",
-            "data": {"total_pages": working_page},
-        }
+        return self._run(_api.get_total_category_pages(category))

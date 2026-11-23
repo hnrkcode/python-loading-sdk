@@ -2,11 +2,7 @@ import inspect
 
 import pytest
 
-from loading_sdk import AsyncLoadingApiClient, LoadingApiClient
-from loading_sdk.async_api import client as async_client
-from loading_sdk.async_api import extractors as async_extractors
-from loading_sdk.sync_api import client as sync_client
-from loading_sdk.sync_api import extractors as sync_extractors
+from loading_sdk import AsyncLoadingApiClient, LoadingApiClient, settings
 
 pytestmark = pytest.mark.asyncio
 
@@ -19,10 +15,8 @@ async def resolve(value):
 @pytest.fixture(params=[LoadingApiClient, AsyncLoadingApiClient], ids=["sync", "async"])
 def make_client(request, monkeypatch, httpserver):
     base_url = httpserver.url_for("").rstrip("/")
-    for module in (sync_client, async_client):
-        monkeypatch.setattr(module, "API_URL", base_url)
-    for module in (sync_extractors, async_extractors):
-        monkeypatch.setattr(module, "BASE_URL", base_url)
+    monkeypatch.setattr(settings, "API_URL", base_url)
+    monkeypatch.setattr(settings, "BASE_URL", base_url)
     return request.param
 
 
@@ -97,6 +91,7 @@ async def test_thread_pages_for_reply(make_client, httpserver):
 
 
 async def test_about_extraction(make_client, httpserver):
+    httpserver.expect_request("/v1/editorial/").respond_with_json({}, status=404)
     httpserver.expect_request("/om").respond_with_data(
         '<script src="/static/js/main.abc.js"></script>'
     )
@@ -130,6 +125,7 @@ async def test_socials_extraction(make_client, httpserver):
 
 
 async def test_about_without_chunks(make_client, httpserver):
+    httpserver.expect_request("/v1/editorial/").respond_with_json({}, status=404)
     httpserver.expect_request("/om").respond_with_data(
         '<script src="/static/js/main.abc.js"></script>'
     )

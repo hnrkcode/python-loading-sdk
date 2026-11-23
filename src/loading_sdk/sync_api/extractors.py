@@ -1,19 +1,19 @@
-import json
-import re
+"""Standalone extractor interfaces retained for existing SDK callers."""
+
 from abc import ABC, abstractmethod
 
-import requests
+import httpx
 
 from loading_sdk._parsing import chunk_urls, main_script_path
 from loading_sdk.settings import BASE_URL, USER_AGENT
+from loading_sdk.sync_api.client import LoadingApiClient
 
 
 class Extractor(ABC):
     def get_source(self, url: str) -> str:
-        headers = {"User-Agent": USER_AGENT}
-        response = requests.get(url, headers=headers, timeout=10)
-
-        return response.text
+        with httpx.Client(follow_redirects=True, timeout=10) as client:
+            response = client.get(url, headers={"User-Agent": USER_AGENT})
+            return response.text
 
     def get_script(self, source: str) -> str | None:
         return main_script_path(source)
@@ -28,66 +28,14 @@ class Extractor(ABC):
 
 class AboutExtractor(Extractor):
     def get_data(self):
-        about_page_source = self.get_source(f"{BASE_URL}/om")
-        main_script_url = self.get_script(about_page_source)
-        if main_script_url is None:
-            return None
-        main_script_source = self.get_source(f"{BASE_URL}/{main_script_url}")
-        chunk_urls = self.get_chunks(main_script_source)
-        if not chunk_urls:
-            return None
-        about_script_url = chunk_urls[-1]
-        about_script_source = self.get_source(about_script_url)
-
-        match = re.search(
-            r"var.e=(.+?)(?=\.map).+a=(.+?)(?=\.map)", about_script_source
-        )
-
-        if not match:
-            return None
-
-        people = re.sub(r"(\{|\,)([a-z]+)(\:)", r'\1"\2"\3', match.group(1))
-        people = re.sub(r"(.+)(')(.+)(')(.+)", r'\1"\3"\5', people)
-        people = people.replace('slags "vuxen p', "slags 'vuxen p")
-        people = people.replace('riktigt"-framtid', "riktigt'-framtid")
-        people = people.replace("\\n", "")
-        people = people.encode("utf-8").decode("unicode_escape")
-
-        moderators = re.sub(r"(\{|\,)([a-z]+)(\:)", r'\1"\2"\3', match.group(2))
-        moderators = re.sub(r"(.+)(')(.+)(')(.+)", r'\1"\3"\5', moderators)
-        moderators = moderators.replace("\\n", "")
-        moderators = moderators.encode("utf-8").decode("unicode_escape")
-
-        data = {
-            "people": json.loads(people),
-            "moderators": json.loads(moderators),
-        }
-
-        return data
+        response = LoadingApiClient().get_about()
+        return response["data"]
 
 
 class SocialsExtractor(Extractor):
     def get_data(self):
-        page_source = self.get_source(BASE_URL)
-        main_script_url = self.get_script(page_source)
-        if main_script_url is None:
-            return None
-        main_script_source = self.get_source(f"{BASE_URL}/{main_script_url}")
-
-        match = re.findall(
-            r"(?:href:\")"
-            + r"(https:\/\/|https:\/\/www.(.*?)\..*?\/.*?)"
-            + r"(?:\",target:\"_blank\",rel:\"noreferrer noopener\",className:)"
-            + r"(?:\"Footer-(?:icon|patreon)\")",
-            main_script_source,
-        )
-
-        if not match:
-            return None
-
-        data = [{"name": social[1], "link": social[0]} for social in match]
-
-        return data
+        response = LoadingApiClient().get_socials()
+        return response["data"]
 
 
 class ExtractorFactory(ABC):

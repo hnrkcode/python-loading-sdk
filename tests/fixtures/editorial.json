@@ -1,0 +1,16 @@
+{
+  "editorials": [
+    {
+      "name": "Isabell Rydén",
+      "type": "editor",
+      "order": "-1"
+    }
+  ],
+  "moderators": [
+    {
+      "name": "Chips",
+      "type": "moderate",
+      "order": "10"
+    }
+  ]
+}

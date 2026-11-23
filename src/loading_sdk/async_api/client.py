@@ -1,129 +1,116 @@
-import math
-from typing import Any
+import asyncio
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
+from typing import Any, Self
 
-import aiohttp
+import httpx
 
-from loading_sdk.async_api.extractors import extract_data
-from loading_sdk.settings import (
-    API_URL,
-    API_VERSION,
-    EDITORIAL_POST_TYPES,
-    EDITORIAL_SORT,
-    FORUM_CATEGORIES,
-    POSTS_PER_PAGE,
-    USER_AGENT,
-)
+from loading_sdk import _api, _http
+from loading_sdk._api import Operation, T
 
 
 async def async_loading_api_client(
-    email: str | None = None, password: str | None = None
+    email: str | None = None,
+    password: str | None = None,
+    *,
+    transport: httpx.AsyncBaseTransport | None = None,
+    timeout: float = 300.0,
 ) -> "AsyncLoadingApiClient":
-    client = AsyncLoadingApiClient()
-    await client._set_cookie(email, password)
-
+    client = AsyncLoadingApiClient(transport=transport, timeout=timeout)
+    if email and password:
+        try:
+            login = await client._authenticate(email, password)
+            if login.get("code") == 200:
+                client._cookies = login.get("cookies")
+        except BaseException:
+            await client.aclose()
+            raise
     return client
 
 
 class AsyncLoadingApiClient:
-    """
-    An async client that allows python apps to easily communicate with the loading forums web api.
+    """Async Loading.se client. Use an async context manager to reuse connections."""
 
-    Some methods can be used anonymously, while others require the client to be authenticated
-    with user credentials.
+    def __init__(
+        self,
+        *,
+        transport: httpx.AsyncBaseTransport | None = None,
+        timeout: float = 300.0,
+    ) -> None:
+        self._timeout = timeout
+        self._transport = transport
+        self._client = self._new_client() if transport is not None else None
+        self._closed = False
+        self._entered = False
+        self._cookies: httpx.Cookies | None = None
 
-    :param email: users email address (**optional**)
-    :type email: str
-    :param password: users password (**optional**)
-    :type password: str
-    """
+    def _new_client(self) -> httpx.AsyncClient:
+        return httpx.AsyncClient(
+            transport=self._transport,
+            timeout=httpx.Timeout(self._timeout, connect=min(30.0, self._timeout)),
+            follow_redirects=True,
+            event_hooks={
+                "request": [_http.async_before_send],
+                "response": [_http.async_after_receive],
+            },
+        )
 
-    def __init__(self) -> None:
-        self._cookies = None
+    async def __aenter__(self) -> Self:
+        if self._closed or self._entered:
+            raise RuntimeError("SDK client is closed or already entered")
+        if self._client is None:
+            self._client = self._new_client()
+        self._entered = True
+        return self
 
-    async def _set_cookie(self, email: str | None, password: str | None) -> None:
-        if email and password:
-            response = await self._authenticate(email, password)
+    async def __aexit__(self, exc_type, exc_value, traceback) -> None:
+        await self.aclose()
 
-            if response.get("code") == 200:
-                self._cookies = response.get("cookies")
+    async def aclose(self) -> None:
+        """Close the SDK-owned connection pool and any supplied transport."""
+        if not self._closed and self._client is not None:
+            await self._client.aclose()
+        self._closed = True
+
+    @asynccontextmanager
+    async def _session(self) -> AsyncGenerator[httpx.AsyncClient, None]:
+        if self._client is not None:
+            yield self._client
+        else:
+            async with self._new_client() as client:
+                yield client
+
+    async def _run(self, operation: Operation[T]) -> T:
+        if self._closed:
+            raise RuntimeError("SDK client is closed")
+        try:
+            req = next(operation)
+        except StopIteration as done:
+            return done.value
+        async with self._session() as client:
+            while True:
+                _http.prepare(req, self._cookies)
+                try:
+                    async with asyncio.timeout(self._timeout):
+                        response = await client.send(req)
+                except TimeoutError as exc:
+                    raise httpx.TimeoutException(
+                        "Request exceeded its total timeout", request=req
+                    ) from exc
+                try:
+                    req = operation.send(response)
+                except StopIteration as done:
+                    return done.value
 
     async def _authenticate(self, email: str, password: str) -> dict[str, Any]:
-        url = f"{API_URL}/{API_VERSION}/auth/login"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-        data = {
-            "email": email,
-            "password": password,
-        }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, data=data) as response:
-                if response.status == 200:
-                    return {"code": response.status, "cookies": response.cookies}
-
-                return await response.json()
-
-    async def _get_threads_in_forum_category(
-        self, category_name: str, page: int | None
-    ) -> dict[str, Any]:
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {"User-Agent": USER_AGENT, category_name: category_name}
-
-        # Chooses a specific page instead of the first page which is the default page.
-        if page and page > 1:
-            headers["page"] = str(page)
-
-        # Doing this checks to make sure it only return data from a page that exists.
-        if page and page < 1:
-            return {
-                "code": 404,
-                "message": "Page number too low",
-                "data": {"posts": [], "users": []},
-            }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                data = await response.json()
-
-                # Page out of range.
-                if not data["posts"]:
-                    return {
-                        "code": 404,
-                        "message": "Page number too high",
-                        "data": data,
-                    }
-
-                return {
-                    "code": response.status,
-                    "message": "OK",
-                    "data": data,
-                }
+        return await self._run(_api.authenticate(email, password))
 
     async def get_profile(self) -> dict[str, Any]:
         """Returns authenticated users profile data
 
         :rtype: dict
         """
-
-        url = f"{API_URL}/{API_VERSION}/users/profile"
-        headers = {"User-Agent": USER_AGENT}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(
-                url, headers=headers, cookies=self._cookies
-            ) as response:
-                data = await response.json()
-
-                if response.status == 200:
-                    return {
-                        "code": response.status,
-                        "message": "OK",
-                        "data": data,
-                    }
-
-                return data
+        return await self._run(_api.get_profile())
 
     async def search(self, query: str) -> dict[str, Any]:
         """Returns posts that matches the query
@@ -132,26 +119,7 @@ class AsyncLoadingApiClient:
         :type query: str
         :rtype: dict
         """
-
-        url = f"{API_URL}/{API_VERSION}/search/"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-        }
-        data = {"query": query}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url, headers=headers, data=data) as response:
-                data = await response.json()
-
-                if response.status == 200:
-                    return {
-                        "code": response.status,
-                        "message": "OK" if len(data["posts"]) else "No results",
-                        "data": data,
-                    }
-
-                return data
+        return await self._run(_api.search(query))
 
     async def get_post(self, post_id: str) -> dict[str, Any]:
         """Returns a specific post
@@ -160,25 +128,7 @@ class AsyncLoadingApiClient:
         :type post_id: str
         :rtype: dict
         """
-
-        if not post_id:
-            return {"code": 404, "message": '"post_id" is not allowed to be empty'}
-
-        url = f"{API_URL}/{API_VERSION}/posts/{post_id}"
-        headers = {"User-Agent": USER_AGENT}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                data = await response.json()
-
-                if response.status == 200:
-                    return {
-                        "code": response.status,
-                        "message": "OK",
-                        "data": data,
-                    }
-
-                return data
+        return await self._run(_api.get_post(post_id))
 
     async def get_thread(
         self, thread_id: str, page: int | None = None
@@ -191,61 +141,7 @@ class AsyncLoadingApiClient:
         :type page: int
         :rtype: dict
         """
-
-        if not thread_id:
-            return {"code": 404, "message": '"thread_id" is not allowed to be empty'}
-
-        url = f"{API_URL}/{API_VERSION}/posts/{thread_id}"
-        headers = {"User-Agent": USER_AGENT}
-
-        # Chooses a specific page instead of the first page which is the default page.
-        if page and page > 1:
-            headers["page"] = str(page)
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                data = await response.json()
-
-                if response.status != 200:
-                    return data
-
-                if "title" not in data["posts"][-1]:
-                    return {
-                        "code": response.status,
-                        "message": "Exists, but was not a thread id",
-                    }
-
-                # Doing this checks to make sure it only return data from a page that exists.
-                if page:
-                    replies = data["posts"][-1]["replies"]
-                    pages = math.ceil(replies / 30)
-
-                    # There is always atleast one page.
-                    if pages == 0:
-                        pages = 1
-
-                    # Page is out of range.
-                    if page < 1:
-                        return {
-                            "code": response.status,
-                            "message": "Page number too low",
-                            "data": {"posts": [], "users": []},
-                        }
-
-                    if page > pages:
-                        return {
-                            "code": response.status,
-                            "message": "Page number too high",
-                            "data": {"posts": [], "users": []},
-                        }
-
-                successful_response = {
-                    "code": response.status,
-                    "message": "OK",
-                    "data": data,
-                }
-
-                return successful_response
+        return await self._run(_api.get_thread(thread_id, page))
 
     async def get_games(self, page: int | None = None) -> dict[str, Any]:
         """Retruns threads from a specific page in the game category
@@ -254,11 +150,7 @@ class AsyncLoadingApiClient:
         :type page: int
         :rtype: dict
         """
-
-        category_name = "games"
-        thread_data = await self._get_threads_in_forum_category(category_name, page)
-
-        return thread_data
+        return await self._run(_api.category_page("games", page))
 
     async def get_other(self, page: int | None = None) -> dict[str, Any]:
         """Retruns threads from a specific page in the other category
@@ -267,11 +159,7 @@ class AsyncLoadingApiClient:
         :type page: int
         :rtype: dict
         """
-
-        category_name = "other"
-        thread_data = await self._get_threads_in_forum_category(category_name, page)
-
-        return thread_data
+        return await self._run(_api.category_page("other", page))
 
     async def get_editorials(
         self,
@@ -291,49 +179,7 @@ class AsyncLoadingApiClient:
         :type sort: str
         :rtype: dict
         """
-
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "texts": "texts",
-            "post-type": "neRegular",
-        }
-
-        if post_type and post_type in EDITORIAL_POST_TYPES:
-            headers["post-type"] = post_type
-
-        if sort and sort in EDITORIAL_SORT:
-            headers["sort"] = sort
-
-        # Chooses a specific page instead of the first page which is the default page.
-        if page and page > 1:
-            headers["page"] = str(page)
-
-        # Doing this checks to make sure it only return data from a page that exists.
-        if page and page < 1:
-            return {
-                "code": 404,
-                "message": "Page number too low",
-                "data": {"posts": [], "users": []},
-            }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers) as response:
-                data = await response.json()
-
-                # Page out of range.
-                if not data["posts"]:
-                    return {
-                        "code": 404,
-                        "message": "Page number too high",
-                        "data": data,
-                    }
-
-                return {
-                    "code": response.status,
-                    "message": "OK",
-                    "data": data,
-                }
+        return await self._run(_api.category_page("texts", page, post_type, sort))
 
     async def create_post(self, thread_id: str, message: str) -> dict[str, Any]:
         """Create new post in a thread
@@ -344,43 +190,7 @@ class AsyncLoadingApiClient:
         :type message: str
         :rtype: dict
         """
-
-        if not thread_id:
-            return {"code": 400, "message": '"thread_id" is not allowed to be empty'}
-
-        url = f"{API_URL}/{API_VERSION}/posts/{thread_id}"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-        data = {"body": message}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                url,
-                headers=headers,
-                data=data,
-                cookies=self._cookies,
-            ) as response:
-                data = await response.json()
-
-                # Has no auth token.
-                if response.status == 401:
-                    return data
-
-                # Post id doesn't exist.
-                if response.status == 404:
-                    return data
-
-                if response.status == 201:
-                    return {
-                        "code": response.status,
-                        "message": "Post created",
-                        "data": data,
-                    }
-
-                # Handle any other unknown status code.
-                return data
+        return await self._run(_api.create_post(thread_id, message))
 
     async def edit_post(self, post_id: str, message: str) -> dict[str, Any]:
         """Edit existing post in a thread
@@ -392,42 +202,7 @@ class AsyncLoadingApiClient:
         :type message: str
         :rtype: dict
         """
-        if not message:
-            return {"code": 400, "message": '"message" is not allowed to be empty'}
-
-        url = f"{API_URL}/{API_VERSION}/posts/{post_id}"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-        data = {"body": message}
-
-        async with aiohttp.ClientSession() as session:
-            async with session.patch(
-                url,
-                headers=headers,
-                data=data,
-                cookies=self._cookies,
-            ) as response:
-                data = await response.json()
-
-                # Has no auth token.
-                if response.status == 401:
-                    return data
-
-                # Post id doesn't exist.
-                if response.status == 404:
-                    return data
-
-                if response.status == 200:
-                    return {
-                        "code": response.status,
-                        "message": "Post updated",
-                        "data": data,
-                    }
-
-                # Handle any other unknown status code.
-                return data
+        return await self._run(_api.edit_post(post_id, message))
 
     async def create_thread(
         self, title: str, message: str, category_name: str, post_type: str | None = None
@@ -443,53 +218,9 @@ class AsyncLoadingApiClient:
         :param post_type: Creates a "regular" thread by the default. (**optional**)
         :rtype: dict
         """
-        if category_name not in ["games", "other"]:
-            return {"code": 400, "message": "Invalid forum category"}
-
-        if post_type and post_type not in EDITORIAL_POST_TYPES:
-            return {"code": 400, "message": "Invalid post_type"}
-
-        if not post_type:
-            post_type = "regular"
-
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-        data = {
-            "category": category_name,
-            "postType": post_type,
-            "title": title,
-            "body": message,
-        }
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                url,
-                headers=headers,
-                data=data,
-                cookies=self._cookies,
-            ) as response:
-                data = await response.json()
-
-                # Validation errors. Happens when title or message is empty.
-                # Possibly in other cases too.
-                if response.status == 400:
-                    return data
-
-                # No auth token.
-                if response.status == 401:
-                    return data
-
-                if response.status == 201:
-                    return {
-                        "code": response.status,
-                        "message": "Thread created",
-                        "data": data,
-                    }
-
-                # Handle any other unknown status code.
-                return data
+        return await self._run(
+            _api.create_thread(title, message, category_name, post_type)
+        )
 
     async def edit_thread(self, thread_id: str, message: str) -> dict[str, Any]:
         """Edit existing thread
@@ -501,39 +232,21 @@ class AsyncLoadingApiClient:
         :type message: str
         :rtype: dict
         """
-
-        thread_data = await self.edit_post(thread_id, message)
-
-        if thread_data["code"] == 200:
-            thread_data["message"] = "Thread updated"
-
-        return thread_data
+        return await self._run(_api.edit_thread(thread_id, message))
 
     async def get_about(self) -> dict[str, Any]:
         """Get about page data
 
         :rtype dict
         """
-
-        data = await extract_data("about")
-
-        if not data:
-            return {"code": 404, "message": "No data found", "data": None}
-
-        return {"code": 200, "message": "OK", "data": data}
+        return await self._run(_api.get_about())
 
     async def get_socials(self) -> dict[str, Any]:
         """Get social media links
 
         :rtype dict
         """
-
-        data = await extract_data("socials")
-
-        if not data:
-            return {"code": 404, "message": "No results found", "data": None}
-
-        return {"code": 200, "message": "OK", "data": data}
+        return await self._run(_api.get_socials())
 
     async def get_total_thread_pages(self, thread_id: str) -> int | dict[str, Any]:
         """Returns total pages of a thread.
@@ -543,17 +256,7 @@ class AsyncLoadingApiClient:
         :returns: The page count, or the error dictionary returned by get_thread.
         :rtype: int | dict
         """
-
-        response = await self.get_thread(thread_id)
-
-        if response["code"] != 200 or "data" not in response:
-            return response
-
-        thread_start = response["data"]["posts"][-1]
-        replies = max(thread_start["replies"], 1)
-        pages = math.ceil(replies / POSTS_PER_PAGE)
-
-        return pages
+        return await self._run(_api.get_total_thread_pages(thread_id))
 
     async def get_total_category_pages(self, category: str) -> dict[str, Any]:
         """Returns total pages of a forum category.
@@ -562,50 +265,4 @@ class AsyncLoadingApiClient:
         :type category: str
         :rtype: dict
         """
-
-        if category not in FORUM_CATEGORIES:
-            return {"code": 404, "message": "Invalid category", "data": None}
-
-        working_page = 0
-        current_page = 1
-        url = f"{API_URL}/{API_VERSION}/posts/"
-        headers = {
-            "User-Agent": USER_AGENT,
-            "page": str(current_page),
-            category: category,
-        }
-
-        if category == "texts":
-            headers["post-type"] = "neRegular"
-
-        async with aiohttp.ClientSession() as session:
-            # Double current page until no results are returned
-            # then we know all pages after that won't work either.
-            while True:
-                headers["page"] = str(current_page)
-                async with session.get(url, headers=headers) as response:
-                    data = await response.json()
-
-                    if not data["posts"]:
-                        break
-
-                    working_page = current_page
-                    current_page *= 2
-
-            while current_page - working_page > 1:
-                page = (working_page + current_page) // 2
-                headers["page"] = str(page)
-
-                async with session.get(url, headers=headers) as response:
-                    data = await response.json()
-
-                    if data["posts"]:
-                        working_page = page
-                    else:
-                        current_page = page
-
-        return {
-            "code": 200,
-            "message": "OK",
-            "data": {"total_pages": working_page},
-        }
+        return await self._run(_api.get_total_category_pages(category))

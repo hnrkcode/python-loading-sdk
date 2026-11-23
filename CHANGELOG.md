@@ -1,6 +1,6 @@
 # Release notes
 
-## 0.5.1 (unreleased)
+## 0.5.1 (2026-11-23)
 
 - Updated the README with runnable examples for reading public threads synchronously and accessing a profile asynchronously. The PyPI documentation link now points to these examples.
 - Updated the API reference to show how to create an async client, filter editorials, and read the results of the thread and category page-count methods.

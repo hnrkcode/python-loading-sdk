@@ -1,6 +1,6 @@
 # Release notes
 
-## 0.5.0
+## 0.5.0 (2026-11-23)
 
 Python 3.11 is the minimum supported version. The test suite covers Python 3.11 through 3.15. Projects on Python 3.8–3.10 can continue using 0.4.1.
 

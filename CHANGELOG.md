@@ -1,5 +1,9 @@
 # Release notes
 
+## 0.5.3 (2026-11-24)
+
+- Removed python 3.11 support.
+
 ## 0.5.2 (2026-11-23)
 
 - Update pypi workflow to automatically create github releases.

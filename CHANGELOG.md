@@ -1,5 +1,10 @@
 # Release notes
 
+## 0.5.4 (2026-11-24)
+
+- Added dependabot configuration for automatic dependency updates.
+- Updated supported python version badge in the README.
+
 ## 0.5.3 (2026-11-24)
 
 - Removed python 3.11 support.

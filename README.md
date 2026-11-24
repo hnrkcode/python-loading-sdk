@@ -129,7 +129,7 @@ Open `docs/build/html/index.html` in a browser. CI runs the same check, and Git 
 
 [pypi-image]: https://img.shields.io/pypi/v/python-loading-sdk?cacheSeconds=300
 [pypi-url]: https://pypi.org/project/python-loading-sdk/
-[versions-image]: https://img.shields.io/pypi/pyversions/python-loading-sdk?cacheSeconds=300
-[versions-url]: https://pypi.org/project/python-loading-sdk/
+[versions-image]: https://img.shields.io/python/required-version-toml?tomlFilePath=https://raw.githubusercontent.com/hnrkcode/python-loading-sdk/main/pyproject.toml&cacheSeconds=300
+[versions-url]: https://github.com/hnrkcode/python-loading-sdk/blob/main/pyproject.toml
 [build-image]: https://github.com/hnrkcode/python-loading-sdk/actions/workflows/build.yaml/badge.svg?branch=main&event=push
 [build-url]: https://github.com/hnrkcode/python-loading-sdk/actions/workflows/build.yaml?query=branch%3Amain+event%3Apush

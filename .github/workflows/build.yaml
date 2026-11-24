@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up uv and Python
         uses: astral-sh/setup-uv@v7
@@ -60,7 +60,7 @@ jobs:
       checksums: ${{ steps.verify.outputs.checksums }}
       index: ${{ steps.verify.outputs.index }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
         with:
           version: "0.13.9"
